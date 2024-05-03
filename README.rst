@@ -4,7 +4,7 @@ VorlageLLM
 
 .. start-badges
 
-|testing badge| |coverage badge| |docs badge| |black badge| |torchapp badge|
+|testing badge| |coverage badge| |docs badge| |black badge|
 
 .. |testing badge| image:: https://github.com/rbturnbull/vorlagellm/actions/workflows/testing.yml/badge.svg
     :target: https://github.com/rbturnbull/vorlagellm/actions
@@ -17,9 +17,6 @@ VorlageLLM
     
 .. |coverage badge| image:: https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/rbturnbull/132c627e616e59fa78f663e4a4ff6f0f/raw/coverage-badge.json
     :target: https://rbturnbull.github.io/vorlagellm/coverage/
-
-.. |torchapp badge| image:: https://img.shields.io/badge/MLOpps-torchapp-B1230A.svg
-    :target: https://rbturnbull.github.io/torchapp/
     
 .. end-badges
 
@@ -40,19 +37,11 @@ Install using pip:
 Usage
 ==================================
 
-See the options for training a model with the command:
+See the options with the command:
 
 .. code-block:: bash
 
-    vorlagellm train --help
-
-See the options for making inferences with the command:
-
-.. code-block:: bash
-
-    vorlagellm infer --help
-
-.. end-quickstart
+    vorlagellm --help
 
 
 Credits
@@ -61,9 +50,7 @@ Credits
 .. start-credits
 
 Robert Turnbull
-For more information contact: <robert.turnbull@example.com>
-
-Created using torchapp (https://github.com/rbturnbull/torchapp).
+For more information contact: <robert.turnbull@unimelb.edu.au>
 
 .. end-credits
 
