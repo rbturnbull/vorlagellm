@@ -3,7 +3,7 @@
 # import transformers
 # from langchain.llms import HuggingFacePipeline
 # from langchain_experimental.chat_models import Llama2Chat
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 
 
 # def hugging_face_pipeline(hf_auth:str="", model_id='meta-llama/Llama-2-13b-chat-hf', **kwargs):

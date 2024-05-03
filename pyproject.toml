@@ -22,6 +22,10 @@ python = "<4.0,>=3.10"
 docutils = "!=0.21.post1"
 langchain = "^0.1.17"
 lxml = "^5.2.1"
+openai = "^1.25.1"
+langchain-community = "^0.0.36"
+langchain-openai = "^0.1.6"
+rich = "^13.7.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"

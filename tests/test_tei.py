@@ -60,6 +60,11 @@ def test_get_verse_text():
     assert get_verse_text(doc, "B07K1V1") == "paulus uocatus apostolus xpi ihu per uoluntatem di et sostenes frater"
 
 
+def test_get_verse_text_empty():
+    doc = read_tei(TEST_DOC)
+    assert get_verse_text(doc, "1Cor1.1") == None
+
+
 def test_add_siglum():
     apparatus = read_tei(TEST_APPARATUS)
     assert has_witness(apparatus, "51") == False

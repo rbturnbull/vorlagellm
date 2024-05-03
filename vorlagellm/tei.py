@@ -119,7 +119,7 @@ def get_verse_element(doc:ElementTree|Element, verse:str) -> Element|None:
 def get_verse_text(doc:ElementTree|Element, verse:str) -> str|None:
     verse_element = get_verse_element(doc, verse)
     if verse_element is None:
-        return ""
+        return None
     
     return extract_text(verse_element).strip()
     
@@ -142,7 +142,7 @@ def get_witness_list(apparatus:ElementTree|Element) -> Element:
     return list_wit
 
 
-def add_siglum(apparatus:ElementTree|Element, siglum:str):
+def add_siglum(apparatus:ElementTree|Element, siglum:str) -> Element:
     if isinstance(apparatus, ElementTree):
         apparatus = apparatus.getroot()
 
@@ -150,11 +150,12 @@ def add_siglum(apparatus:ElementTree|Element, siglum:str):
     list_wit = get_witness_list(apparatus)
     
     # Check if the witness already exists
-    if find_element(list_wit, f".//witness[@n='{siglum}']") is not None:
-        return
+    witness_element = find_element(list_wit, f".//witness[@n='{siglum}']")
+    if not witness_element:
+        witness_element = ET.Element("witness", attrib={"n": siglum})
+        list_wit.append(witness_element)
 
-    witness_element = ET.Element("witness", attrib={"n": siglum}, nsmap=apparatus.nsmap)
-    list_wit.append(witness_element)
+    return witness_element
 
 
 def has_witness(apparatus:ElementTree|Element, siglum:str) -> bool:
