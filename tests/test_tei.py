@@ -14,11 +14,17 @@ from lxml.etree import _ElementTree as ElementTree
 
 TEST_DIR = Path(__file__).parent/"test-data"
 TEST_DOC = TEST_DIR/"07_VL51_P279v.xml"  
+TEST_APPARATUS = TEST_DIR/"sblgnt-apparatus-1Cor1.xml"  
 
 
-def test_read_tei():
+def test_read_tei_doc():
     doc = read_tei(TEST_DOC)
     assert isinstance(doc, ElementTree)
+
+
+def test_read_tei_apparatus():
+    apparatus = read_tei(TEST_APPARATUS)
+    assert isinstance(apparatus, ElementTree)
 
 
 def test_get_siglum():

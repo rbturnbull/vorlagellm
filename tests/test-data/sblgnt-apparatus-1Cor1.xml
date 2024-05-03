@@ -1,0 +1,251 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>ΠΡΟΣ ΚΟΡΙΝΘΙΟΥΣ Α - Chapter 1</title>
+      </titleStmt>
+      <publicationStmt>
+        <publisher>Society of Biblical Literature (SBL)</publisher>
+        <availability>
+          <licence target="https://creativecommons.org/licenses/by/4.0/">
+            <p>This work is licensed under a Creative Commons Attribution 4.0 International License.</p>
+          </licence>
+        </availability>
+      </publicationStmt>
+      <sourceDesc>
+        <bibl>
+          <title>The Greek New Testament: SBL Edition</title>
+          <editor>Michael W. Holmes</editor>
+          <publisher>Society of Biblical Literature</publisher>
+          <pubPlace>Atlanta, Georgia</pubPlace>
+          <publisher>Logos Bible Software</publisher>
+          <pubPlace>Bellingham, Washington</pubPlace>
+          <date>2010</date>
+        </bibl>
+        <listWit>
+          <witness n="WH"/>
+          <witness n="NA28"/>
+          <witness n="RP"/>
+          <witness n="Holmes"/>
+          <witness n="Treg"/>
+          <witness n="NIV"/>
+        </listWit>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <div type="book" n="1Cor">
+        <div type="chapter" n="1Cor.1">
+          <ab n="B07K1V301">
+            <span>Παῦλος κλητὸς ἀπόστολος</span>
+            <app>
+              <lem wit="Treg NA28">
+                <span>Χριστοῦ Ἰησοῦ</span>
+              </lem>
+              <rdg wit="WH RP">
+                <span>Ἰησοῦ Χριστοῦ</span>
+              </rdg>
+            </app>
+            <span>διὰ θελήματος θεοῦ καὶ Σωσθένης ὁ ἀδελφὸς</span>
+          </ab>
+          <ab n="B07K1V302">
+            <span>τῇ ἐκκλησίᾳ τοῦ θεοῦ,</span>
+            <app>
+              <lem wit="Treg">
+                <span>ἡγιασμένοις ἐν Χριστῷ Ἰησοῦ, τῇ οὔσῃ ἐν Κορίνθῳ,</span>
+              </lem>
+              <rdg wit="WH NA28 RP">
+                <span>τῇ οὔσῃ ἐν Κορίνθῳ ἡγιασμένοις ἐν Χριστῷ Ἰησοῦ</span>
+              </rdg>
+            </app>
+            <span>κλητοῖς ἁγίοις, σὺν πᾶσιν τοῖς ἐπικαλουμένοις τὸ ὄνομα τοῦ κυρίου ἡμῶν Ἰησοῦ Χριστοῦ ἐν παντὶ τόπῳ</span>
+            <app>
+              <lem wit="WH Treg NA28">
+                <span>αὐτῶν</span>
+              </lem>
+              <rdg wit="RP">
+                <span>αὐτῶν τε</span>
+              </rdg>
+            </app>
+            <span>καὶ ἡμῶν·</span>
+          </ab>
+          <ab n="B07K1V303">
+            <span>χάρις ὑμῖν καὶ εἰρήνη ἀπὸ θεοῦ πατρὸς ἡμῶν καὶ κυρίου Ἰησοῦ Χριστοῦ.</span>
+          </ab>
+          <ab n="B07K1V304">
+            <span>Εὐχαριστῶ τῷ θεῷ</span>
+            <app>
+              <lem wit="Treg NA28 RP">
+                <span>μου</span>
+              </lem>
+              <rdg wit="WH">
+                <span/>
+              </rdg>
+            </app>
+            <span>πάντοτε περὶ ὑμῶν ἐπὶ τῇ χάριτι τοῦ θεοῦ τῇ δοθείσῃ ὑμῖν ἐν Χριστῷ Ἰησοῦ,</span>
+          </ab>
+          <ab n="B07K1V305">
+            <span>ὅτι ἐν παντὶ ἐπλουτίσθητε ἐν αὐτῷ, ἐν παντὶ λόγῳ καὶ πάσῃ γνώσει,</span>
+          </ab>
+          <ab n="B07K1V306">
+            <span>καθὼς τὸ μαρτύριον τοῦ Χριστοῦ ἐβεβαιώθη ἐν ὑμῖν,</span>
+          </ab>
+          <ab n="B07K1V307">
+            <span>ὥστε ὑμᾶς μὴ ὑστερεῖσθαι ἐν μηδενὶ χαρίσματι, ἀπεκδεχομένους τὴν ἀποκάλυψιν τοῦ κυρίου ἡμῶν Ἰησοῦ Χριστοῦ·</span>
+          </ab>
+          <ab n="B07K1V308">
+            <span>ὃς καὶ βεβαιώσει ὑμᾶς ἕως τέλους ἀνεγκλήτους ἐν τῇ ἡμέρᾳ τοῦ κυρίου ἡμῶν Ἰησοῦ Χριστοῦ.</span>
+          </ab>
+          <ab n="B07K1V309">
+            <span>πιστὸς ὁ θεὸς διʼ οὗ ἐκλήθητε εἰς κοινωνίαν τοῦ υἱοῦ αὐτοῦ Ἰησοῦ Χριστοῦ τοῦ κυρίου ἡμῶν.</span>
+          </ab>
+          <ab n="B07K1V3010">
+            <span>Παρακαλῶ δὲ ὑμᾶς, ἀδελφοί, διὰ τοῦ ὀνόματος τοῦ κυρίου ἡμῶν Ἰησοῦ Χριστοῦ ἵνα τὸ αὐτὸ λέγητε πάντες, καὶ μὴ ᾖ ἐν ὑμῖν σχίσματα, ἦτε δὲ κατηρτισμένοι ἐν τῷ αὐτῷ νοῒ καὶ ἐν τῇ αὐτῇ γνώμῃ.</span>
+          </ab>
+          <ab n="B07K1V3011">
+            <span>ἐδηλώθη γάρ μοι περὶ ὑμῶν, ἀδελφοί μου, ὑπὸ τῶν Χλόης ὅτι ἔριδες ἐν ὑμῖν εἰσιν.</span>
+          </ab>
+          <ab n="B07K1V3012">
+            <span>λέγω δὲ τοῦτο ὅτι ἕκαστος ὑμῶν λέγει· Ἐγὼ μέν εἰμι Παύλου, Ἐγὼ δὲ Ἀπολλῶ, Ἐγὼ δὲ Κηφᾶ, Ἐγὼ δὲ Χριστοῦ.</span>
+          </ab>
+          <ab n="B07K1V3013">
+            <span>μεμέρισται ὁ Χριστός; μὴ Παῦλος ἐσταυρώθη ὑπὲρ ὑμῶν, ἢ εἰς τὸ ὄνομα Παύλου ἐβαπτίσθητε;</span>
+          </ab>
+          <ab n="B07K1V3014">
+            <app>
+              <lem wit="WH NIV">
+                <span>εὐχαριστῶ</span>
+              </lem>
+              <rdg wit="Treg RP NA28">
+                <span>εὐχαριστῶ τῷ θεῷ</span>
+              </rdg>
+            </app>
+            <span>ὅτι οὐδένα ὑμῶν ἐβάπτισα εἰ μὴ Κρίσπον καὶ Γάϊον,</span>
+          </ab>
+          <ab n="B07K1V3015">
+            <span>ἵνα μή τις εἴπῃ ὅτι εἰς τὸ ἐμὸν ὄνομα</span>
+            <app>
+              <lem wit="WH Treg NA28">
+                <span>ἐβαπτίσθητε·</span>
+              </lem>
+              <rdg wit="RP">
+                <span>ἐβάπτισα</span>
+              </rdg>
+            </app>
+          </ab>
+          <ab n="B07K1V3016">
+            <span>ἐβάπτισα δὲ καὶ τὸν Στεφανᾶ οἶκον· λοιπὸν οὐκ οἶδα εἴ τινα ἄλλον ἐβάπτισα.</span>
+          </ab>
+          <ab n="B07K1V3017">
+            <span>οὐ γὰρ ἀπέστειλέν με Χριστὸς βαπτίζειν ἀλλὰ εὐαγγελίζεσθαι, οὐκ ἐν σοφίᾳ λόγου, ἵνα μὴ κενωθῇ ὁ σταυρὸς τοῦ Χριστοῦ.</span>
+          </ab>
+          <ab n="B07K1V3018">
+            <span>Ὁ λόγος γὰρ ὁ τοῦ σταυροῦ τοῖς μὲν ἀπολλυμένοις μωρία ἐστίν, τοῖς δὲ σῳζομένοις ἡμῖν δύναμις θεοῦ ἐστιν.</span>
+          </ab>
+          <ab n="B07K1V3019">
+            <span>γέγραπται γάρ· Ἀπολῶ τὴν σοφίαν τῶν σοφῶν, καὶ τὴν σύνεσιν τῶν συνετῶν ἀθετήσω.</span>
+          </ab>
+          <ab n="B07K1V3020">
+            <span>ποῦ σοφός; ποῦ γραμματεύς; ποῦ συζητητὴς τοῦ αἰῶνος τούτου; οὐχὶ ἐμώρανεν ὁ θεὸς τὴν σοφίαν τοῦ</span>
+            <app>
+              <lem wit="WH Treg NA28">
+                <span>κόσμου;</span>
+              </lem>
+              <rdg wit="RP">
+                <span>κόσμου τούτου</span>
+              </rdg>
+            </app>
+          </ab>
+          <ab n="B07K1V3021">
+            <span>ἐπειδὴ γὰρ ἐν τῇ σοφίᾳ τοῦ θεοῦ οὐκ ἔγνω ὁ κόσμος διὰ τῆς σοφίας τὸν θεόν, εὐδόκησεν ὁ θεὸς διὰ τῆς μωρίας τοῦ κηρύγματος σῶσαι τοὺς πιστεύοντας.</span>
+          </ab>
+          <ab n="B07K1V3022">
+            <span>ἐπειδὴ καὶ Ἰουδαῖοι</span>
+            <app>
+              <lem wit="WH Treg NA28">
+                <span>σημεῖα</span>
+              </lem>
+              <rdg wit="RP">
+                <span>σημεῖον</span>
+              </rdg>
+            </app>
+            <span>αἰτοῦσιν καὶ Ἕλληνες σοφίαν ζητοῦσιν·</span>
+          </ab>
+          <ab n="B07K1V3023">
+            <span>ἡμεῖς δὲ κηρύσσομεν Χριστὸν ἐσταυρωμένον, Ἰουδαίοις μὲν σκάνδαλον</span>
+            <app>
+              <lem wit="WH Treg NA28">
+                <span>ἔθνεσιν</span>
+              </lem>
+              <rdg wit="RP">
+                <span>Ἕλλησιν</span>
+              </rdg>
+            </app>
+            <span>δὲ μωρίαν,</span>
+          </ab>
+          <ab n="B07K1V3024">
+            <span>αὐτοῖς δὲ τοῖς κλητοῖς, Ἰουδαίοις τε καὶ Ἕλλησιν, Χριστὸν θεοῦ δύναμιν καὶ θεοῦ σοφίαν.</span>
+          </ab>
+          <ab n="B07K1V3025">
+            <span>ὅτι τὸ μωρὸν τοῦ θεοῦ σοφώτερον τῶν ἀνθρώπων ἐστίν, καὶ τὸ ἀσθενὲς τοῦ θεοῦ ἰσχυρότερον τῶν</span>
+            <app>
+              <lem wit="WH Treg NA28">
+                <span>ἀνθρώπων.</span>
+              </lem>
+              <rdg wit="RP">
+                <span>ἀνθρώπων ἐστίν</span>
+              </rdg>
+            </app>
+          </ab>
+          <ab n="B07K1V3026">
+            <span>Βλέπετε γὰρ τὴν κλῆσιν ὑμῶν, ἀδελφοί, ὅτι οὐ πολλοὶ σοφοὶ κατὰ σάρκα, οὐ πολλοὶ δυνατοί, οὐ πολλοὶ εὐγενεῖς·</span>
+          </ab>
+          <ab n="B07K1V3027">
+            <span>ἀλλὰ τὰ μωρὰ τοῦ κόσμου ἐξελέξατο ὁ θεός, ἵνα</span>
+            <app>
+              <lem wit="WH Treg NA28">
+                <span>καταισχύνῃ τοὺς σοφούς</span>
+              </lem>
+              <rdg wit="RP">
+                <span>τοὺς σοφούς καταισχύνῃ</span>
+              </rdg>
+            </app>
+            <span>, καὶ τὰ ἀσθενῆ τοῦ κόσμου ἐξελέξατο ὁ θεός, ἵνα καταισχύνῃ τὰ ἰσχυρά,</span>
+          </ab>
+          <ab n="B07K1V3028">
+            <span>καὶ τὰ ἀγενῆ τοῦ κόσμου καὶ τὰ ἐξουθενημένα ἐξελέξατο ὁ θεός,</span>
+            <app>
+              <lem wit="Treg NA28">
+                <span>τὰ</span>
+              </lem>
+              <rdg wit="WH RP">
+                <span>καὶ τὰ</span>
+              </rdg>
+            </app>
+            <span>μὴ ὄντα, ἵνα τὰ ὄντα καταργήσῃ,</span>
+          </ab>
+          <ab n="B07K1V3029">
+            <span>ὅπως μὴ καυχήσηται πᾶσα σὰρξ ἐνώπιον τοῦ θεοῦ.</span>
+          </ab>
+          <ab n="B07K1V3030">
+            <span>ἐξ αὐτοῦ δὲ ὑμεῖς ἐστε ἐν Χριστῷ Ἰησοῦ, ὃς ἐγενήθη</span>
+            <app>
+              <lem wit="WH Treg NA28">
+                <span>σοφία ἡμῖν</span>
+              </lem>
+              <rdg wit="RP">
+                <span>ἡμῖν σοφία</span>
+              </rdg>
+            </app>
+            <span>ἀπὸ θεοῦ, δικαιοσύνη τε καὶ ἁγιασμὸς καὶ ἀπολύτρωσις,</span>
+          </ab>
+          <ab n="B07K1V3031">
+            <span>ἵνα καθὼς γέγραπται· Ὁ καυχώμενος ἐν κυρίῳ καυχάσθω.</span>
+          </ab>
+        </div>
+      </div>
+    </body>
+  </text>
+</TEI>
