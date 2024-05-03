@@ -57,4 +57,18 @@ def test_get_verse_text():
     doc = read_tei(TEST_DOC)
     assert get_verse_text(doc, "B07K1V1") == "paulus uocatus apostolus xpi ihu per uoluntatem di et sostenes frater"
 
-    
+
+def test_add_siglum():
+    apparatus = read_tei(TEST_APPARATUS)
+    add_siglum(apparatus, "51")
+    assert get_siglum(apparatus) == "51"
+
+
+def test_get_reading_permutations():
+    permutations = get_reading_permutations(read_tei(TEST_APPARATUS), "B07K1V1")
+    assert len(permutations) == 2
+    assert permutations[0].text == "Παῦλος κλητὸς ἀπόστολος Χριστοῦ Ἰησοῦ διὰ θελήματος θεοῦ καὶ Σωσθένης ὁ ἀδελφὸς"
+    assert permutations[1].text == "Παῦλος κλητὸς ἀπόστολος Ἰησοῦ Χριστοῦ διὰ θελήματος θεοῦ καὶ Σωσθένης ὁ ἀδελφὸς"
+
+    assert permutations[0].readings[0].tag == "{http://www.tei-c.org/ns/1.0}lem"
+    assert permutations[1].readings[0].tag == "{http://www.tei-c.org/ns/1.0}rdg"

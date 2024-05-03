@@ -3,7 +3,13 @@ from lxml import etree as ET
 from lxml.etree import _ElementTree as ElementTree
 from lxml.etree import _Element as Element
 import re
-from bs4 import BeautifulSoup
+from dataclasses import dataclass
+
+
+@dataclass
+class Permutation:
+    text:str
+    readings:list[Element]
 
 
 def read_tei(path:Path) -> ElementTree:
@@ -51,8 +57,32 @@ def get_verses(doc:ElementTree|Element) -> list[str]:
     return [ab.attrib['n'] for ab in ab_elements if 'n' in ab.attrib]
 
 
-def get_reading_permutations():
-    raise NotImplementedError()
+def get_reading_permutations(apparatus:ElementTree|Element, verse:str) -> list[Permutation]:
+    verse_element = get_verse_element(apparatus, verse)
+    if verse_element is None:
+        return []
+
+    permutations = [Permutation(text="", readings=[])]
+
+    for child in verse_element:
+        tag = re.sub(r"{.*}", "", child.tag)
+        if tag == "app":
+            new_permutations = []
+            readings = find_elements(child, ".//lem") + find_elements(child, ".//rdg")
+            for reading in readings:
+                reading_text = extract_text(reading) or ""
+                for permutation in permutations:
+                    new_permutation = Permutation(text=permutation.text + " " + reading_text, readings=permutation.readings + [reading])
+                    new_permutations.append(new_permutation)
+            permutations = new_permutations
+        else:
+            for permutation in permutations:
+                permutation.text += " " + extract_text(child)
+
+    def clean_text(text:str) -> str:
+        return re.sub(r"\s+", " ", text.strip())
+
+    return [Permutation(text=clean_text(permutation.text), readings=permutation.readings) for permutation in permutations]
 
 
 def extract_text(node:Element) -> str:
@@ -71,15 +101,19 @@ def extract_text(node:Element) -> str:
     return text
 
 
+def get_verse_element(doc:ElementTree|Element, verse:str) -> Element|None:
+    return find_element(doc, f".//ab[@n='{verse}']")
+
+
 def get_verse_text(doc:ElementTree|Element, verse:str) -> str|None:
-    ab_element = find_element(doc, f".//ab[@n='{verse}']")
-    if ab_element is None:
+    verse_element = get_verse_element(doc, verse)
+    if verse_element is None:
         return ""
     
-    return extract_text(ab_element).strip()
+    return extract_text(verse_element).strip()
     
 
-def add_witness_readings():
+def add_witness_readings(apparatus:ElementTree|Element, verse:str, siglum:str, results):
     raise NotImplementedError()
 
 

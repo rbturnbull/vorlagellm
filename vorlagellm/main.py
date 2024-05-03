@@ -46,12 +46,13 @@ def versionllm(
     chain = build_chain(llm, doc_language, apparatus_language)
 
     for verse in get_verses(apparatus):
-        result = chain.invoke(
+        permutations = get_reading_permutations(apparatus, verse)
+        results = chain.invoke(
             doc_text = get_verse_text(doc, verse),
-            reading_permutations = get_reading_permutations(apparatus, verse),
+            reading_permutations = permutations,
         )
 
-        add_witness_readings(apparatus, verse, siglum, result)
+        add_witness_readings(apparatus, verse, siglum, permutations, results)
 
     # Write TEI XML
     write_tei(apparatus, output)
