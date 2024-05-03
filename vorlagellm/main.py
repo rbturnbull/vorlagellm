@@ -49,10 +49,10 @@ def versionllm(
     for verse in get_verses(apparatus):
         permutations = get_reading_permutations(apparatus, verse)
         readings = readings_list_to_str([permutation.text for permutation in permutations])
-        results = chain.invoke(
-            doc_text=get_verse_text(doc, verse),
+        results = chain.invoke(dict(
+            text=get_verse_text(doc, verse),
             readings=readings,
-        )
+        ))
 
         for index in results:
             readings = permutations[index].readings
