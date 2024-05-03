@@ -15,6 +15,12 @@ def find_element(doc:ElementTree|Element, xpath:str) -> Element|None:
     return doc.find(xpath, namespaces=doc.nsmap)
 
 
+def find_elements(doc:ElementTree|Element, xpath:str) -> Element|None:
+    if isinstance(doc, ElementTree):
+        doc = doc.getroot()
+    return doc.findall(xpath, namespaces=doc.nsmap)
+
+
 def get_siglum(doc:ElementTree|Element) -> str:
     """
     Get the attribute of the 'n' attribute in the <title type="document"> element.
@@ -41,9 +47,10 @@ def get_language(doc:ElementTree|Element) -> str:
     return text.attrib.get("{http://www.w3.org/XML/1998/namespace}lang", "")
 
     
-def get_verses():
-    raise NotImplementedError()
-
+def get_verses(doc:ElementTree|Element):
+    """ Returns a list of "n" attributes in <ab> elements."""
+    ab_elements = find_elements(doc, ".//ab")
+    return [ab.attrib['n'] for ab in ab_elements if 'n' in ab.attrib]
 
 def get_reading_permutations():
     raise NotImplementedError()

@@ -31,3 +31,10 @@ def test_get_language():
     doc = read_tei(TEST_DOC)
     language = get_language(doc)
     assert language == "lat"
+
+
+def test_get_verses():
+    verses = get_verses(read_tei(TEST_DOC))
+    assert len(verses) == 43
+    assert verses[0] == "B07K1V1"
+    assert verses[-1] == "B07K2V12"
