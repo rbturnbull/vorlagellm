@@ -1,4 +1,4 @@
-import os
+# import os
 # import torch
 # import transformers
 # from langchain.llms import HuggingFacePipeline
@@ -161,8 +161,8 @@ def get_llm(
     openai_api_key:str="",
     model_id:str='meta-llama/Llama-2-13b-chat-hf',        
 ):
-    if model_id.startswith('meta-llama'):
-        llm = hugging_face_llm(hf_auth, model_id=model_id)
-        return MyLlama2Chat(llm=llm)
+    # if model_id.startswith('meta-llama'):
+    #     llm = hugging_face_llm(hf_auth, model_id=model_id)
+    #     return MyLlama2Chat(llm=llm)
 
     return ChatOpenAI(openai_api_key=openai_api_key, model_name=model_id)
