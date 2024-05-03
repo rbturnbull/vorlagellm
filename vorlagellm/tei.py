@@ -32,10 +32,15 @@ def add_siglum():
     raise NotImplementedError()
 
 
-def get_language():
-    raise NotImplementedError()
+def get_language(doc:ElementTree|Element) -> str:
+    """ Reads the element <text> and returns the value of the xml:lang attribute."""
+    text = find_element(doc, ".//text")
+    if text is None:
+        return ""
+    
+    return text.attrib.get("{http://www.w3.org/XML/1998/namespace}lang", "")
 
-
+    
 def get_verses():
     raise NotImplementedError()
 

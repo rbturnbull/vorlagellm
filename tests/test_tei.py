@@ -25,3 +25,9 @@ def test_get_siglum():
     doc = read_tei(TEST_DOC)
     siglum = get_siglum(doc)
     assert siglum == "51"
+
+
+def test_get_language():
+    doc = read_tei(TEST_DOC)
+    language = get_language(doc)
+    assert language == "lat"
