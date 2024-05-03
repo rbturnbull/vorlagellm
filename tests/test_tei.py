@@ -39,13 +39,22 @@ def test_get_language():
     assert language == "lat"
 
 
-def test_get_verses():
+def test_get_verses_doc():
     verses = get_verses(read_tei(TEST_DOC))
     assert len(verses) == 43
     assert verses[0] == "B07K1V1"
     assert verses[-1] == "B07K2V12"
 
 
+def test_get_verses_app():
+    verses = get_verses(read_tei(TEST_APPARATUS))
+    assert len(verses) == 31
+    assert verses[0] == "B07K1V1"
+    assert verses[-1] == "B07K1V31"
+
+
 def test_get_verse_text():
     doc = read_tei(TEST_DOC)
     assert get_verse_text(doc, "B07K1V1") == "paulus uocatus apostolus xpi ihu per uoluntatem di et sostenes frater"
+
+    
