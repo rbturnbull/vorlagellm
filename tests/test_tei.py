@@ -1,3 +1,4 @@
+import tempfile
 from vorlagellm.tei import (
     read_tei,
     get_siglum,
@@ -6,6 +7,7 @@ from vorlagellm.tei import (
     get_verses,
     get_reading_permutations,
     get_verse_text,
+    has_witness,
     add_witness_readings,
     write_tei,
 )
@@ -36,7 +38,7 @@ def test_get_siglum():
 def test_get_language():
     doc = read_tei(TEST_DOC)
     language = get_language(doc)
-    assert language == "lat"
+    assert language == "Latin"
 
 
 def test_get_verses_doc():
@@ -60,8 +62,9 @@ def test_get_verse_text():
 
 def test_add_siglum():
     apparatus = read_tei(TEST_APPARATUS)
+    assert has_witness(apparatus, "51") == False
     add_siglum(apparatus, "51")
-    assert get_siglum(apparatus) == "51"
+    assert has_witness(apparatus, "51")
 
 
 def test_get_reading_permutations():
@@ -72,3 +75,14 @@ def test_get_reading_permutations():
 
     assert permutations[0].readings[0].tag == "{http://www.tei-c.org/ns/1.0}lem"
     assert permutations[1].readings[0].tag == "{http://www.tei-c.org/ns/1.0}rdg"
+
+
+def test_write_tei():
+    apparatus = read_tei(TEST_APPARATUS)
+    add_siglum(apparatus, "51")
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        output = Path(tmpdirname)/"test-apparatus.xml"
+        write_tei(apparatus, output)
+        assert output.exists()
+        new_apparatus = read_tei(output)
+        assert has_witness(new_apparatus, "51")

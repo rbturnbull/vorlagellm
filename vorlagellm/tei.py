@@ -5,6 +5,8 @@ from lxml.etree import _Element as Element
 import re
 from dataclasses import dataclass
 
+from .languages import convert_language_code
+
 
 @dataclass
 class Permutation:
@@ -20,7 +22,10 @@ def read_tei(path:Path) -> ElementTree:
 def find_element(doc:ElementTree|Element, xpath:str) -> Element|None:
     if isinstance(doc, ElementTree):
         doc = doc.getroot()
-    return doc.find(xpath, namespaces=doc.nsmap)
+    element = doc.find(xpath, namespaces=doc.nsmap)
+    if element is None:
+        element = doc.find(xpath)
+    return element
 
 
 def find_elements(doc:ElementTree|Element, xpath:str) -> Element|None:
@@ -42,13 +47,19 @@ def get_siglum(doc:ElementTree|Element) -> str:
     return title.attrib.get('n', "")
 
 
-def get_language(doc:ElementTree|Element) -> str:
+def get_language_code(doc:ElementTree|Element) -> str:
     """ Reads the element <text> and returns the value of the xml:lang attribute."""
     text = find_element(doc, ".//text")
     if text is None:
         return ""
     
     return text.attrib.get("{http://www.w3.org/XML/1998/namespace}lang", "")
+
+
+def get_language(doc:ElementTree|Element) -> str:
+    code = get_language_code(doc)
+    return convert_language_code(code)
+    
 
     
 def get_verses(doc:ElementTree|Element) -> list[str]:
@@ -113,23 +124,39 @@ def get_verse_text(doc:ElementTree|Element, verse:str) -> str|None:
     return extract_text(verse_element).strip()
     
 
-def add_witness_readings(apparatus:ElementTree|Element, verse:str, siglum:str, results):
-    raise NotImplementedError()
+def add_witness_readings( readings:list[Element], siglum:str) -> None:
+    for reading in readings:
+        reading.attrib['wit'] += f" {siglum}"
+        reading.attrib['wit'] = reading.attrib['wit'].strip()
 
 
-def write_tei():
-    raise NotImplementedError()
+def write_tei(doc:ElementTree, path:Path|str) -> None:
+    doc.write(str(path), encoding="utf-8", xml_declaration=True, pretty_print=True)
 
 
-def add_siglum(apparatus:ElementTree|Element, siglum:str):
-    """ Adds a <witness> element to the <listWit> element in the apparatus."""
+def get_witness_list(apparatus:ElementTree|Element) -> Element:
     list_wit = find_element(apparatus, ".//listWit")
     if list_wit is None:
         raise ValueError("Could not find <listWit> element in the apparatus.")
+    
+    return list_wit
+
+
+def add_siglum(apparatus:ElementTree|Element, siglum:str):
+    if isinstance(apparatus, ElementTree):
+        apparatus = apparatus.getroot()
+
+    """ Adds a <witness> element to the <listWit> element in the apparatus."""
+    list_wit = get_witness_list(apparatus)
     
     # Check if the witness already exists
     if find_element(list_wit, f".//witness[@n='{siglum}']") is not None:
         return
 
-    witness_element = ET.Element("witness", attrib={"n": siglum})
+    witness_element = ET.Element("witness", attrib={"n": siglum}, nsmap=apparatus.nsmap)
     list_wit.append(witness_element)
+
+
+def has_witness(apparatus:ElementTree|Element, siglum:str) -> bool:
+    list_wit = get_witness_list(apparatus)
+    return find_element(list_wit, f".//witness[@n='{siglum}']") is not None

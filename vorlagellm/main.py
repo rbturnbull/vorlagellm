@@ -18,7 +18,7 @@ from vorlagellm.tei import (
 
 app = typer.Typer()
 
-DEFAULT_MODEL_ID = 'meta-llama/Llama-2-13b-chat-hf'
+DEFAULT_MODEL_ID = 'gpt-4-turbo'
 
 
 @app.command()
@@ -43,18 +43,21 @@ def versionllm(
     apparatus_language = get_language(apparatus)
 
     # Create chain to use
-    chain = build_chain(llm, doc_language, apparatus_language)
+    chain = build_chain(llm, doc_language=doc_language, apparatus_language=apparatus_language)
 
     for verse in get_verses(apparatus):
         permutations = get_reading_permutations(apparatus, verse)
+        variants = [permutation.text for permutation in permutations]
         results = chain.invoke(
-            doc_text = get_verse_text(doc, verse),
-            reading_permutations = permutations,
+            doc_text=get_verse_text(doc, verse),
+            variants=variants,
         )
 
-        add_witness_readings(apparatus, verse, siglum, permutations, results)
+        for index in results:
+            readings = permutations[index].readings
+            add_witness_readings( readings, siglum )
 
-    # Write TEI XML
+    # Write TEI XML output
     write_tei(apparatus, output)
 
     return apparatus
