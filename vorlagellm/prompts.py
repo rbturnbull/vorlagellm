@@ -1,5 +1,11 @@
 from langchain.prompts import ChatPromptTemplate
 
+def readings_list_to_str(readings:list[str])->str:
+    result = ""
+    for i, reading in enumerate(readings):
+        result += f"{i+1}. {reading}\n"
+    return result
+
 
 def build_prompt(**kwargs):    
     messages = [
@@ -24,7 +30,7 @@ def build_prompt(**kwargs):
 
             "Here is the {doc_language} text to analyze:\n '{text}'\n"
             
-            "Here is list of {apparatus_language} readings:\n{variants}\n"
+            "Here is list of {apparatus_language} readings:\n{readings}\n"
 
             "Now list the plausible {apparatus_language} readings which may have been the source of the {doc_language} text."
         ),

@@ -4,6 +4,7 @@ from pathlib import Path
 
 from .llms import get_llm
 from .chains import build_chain
+from .prompts import readings_list_to_str
 from vorlagellm.tei import (
     read_tei,
     get_siglum,
@@ -47,10 +48,10 @@ def versionllm(
 
     for verse in get_verses(apparatus):
         permutations = get_reading_permutations(apparatus, verse)
-        variants = [permutation.text for permutation in permutations]
+        readings = readings_list_to_str([permutation.text for permutation in permutations])
         results = chain.invoke(
             doc_text=get_verse_text(doc, verse),
-            variants=variants,
+            readings=readings,
         )
 
         for index in results:
