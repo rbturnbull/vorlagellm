@@ -38,3 +38,8 @@ def test_get_verses():
     assert len(verses) == 43
     assert verses[0] == "B07K1V1"
     assert verses[-1] == "B07K2V12"
+
+
+def test_get_verse_text():
+    doc = read_tei(TEST_DOC)
+    assert get_verse_text(doc, "B07K1V1") == "paulus uocatus apostolus xpi ihu per uoluntatem di et sostenes frater"
