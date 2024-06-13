@@ -23,7 +23,7 @@ console = Console()
 
 app = typer.Typer()
 
-DEFAULT_MODEL_ID = 'gpt-4-turbo'
+DEFAULT_MODEL_ID = "gpt-4o"
 
 
 @app.command()
