@@ -34,6 +34,7 @@ def versionllm(
     hf_auth:Annotated[str, typer.Argument(envvar=["HF_AUTH"])]="",
     openai_api_key:Annotated[str, typer.Argument(envvar=["OPENAI_API_KEY"])]="",
     model_id:str=DEFAULT_MODEL_ID,
+    apparatus_db:Path="",
     siglum:str="",
 ):
     llm = get_llm(hf_auth=hf_auth, openai_api_key=openai_api_key, model_id=model_id)
@@ -54,6 +55,9 @@ def versionllm(
     apparatus_language = get_language(apparatus)
     assert apparatus_language, f"Could not determine language of apparatus {apparatus_path}"
 
+    # Create database for apparatus
+    if apparatus_db:
+        apparatus_db = get_apparatus_db(apparatus, model=embeddings_model, path=apparatus_db)
 
     # Create chain to use
     chain = build_chain(llm, doc_language=doc_language, apparatus_language=apparatus_language)

@@ -4,7 +4,7 @@ from vorlagellm.tei import (
     read_tei,
 )
 import numpy as np
-from vorlagellm.rag import build_apparatus_embeddingdocs, build_teidoc_embeddingdocs, get_apparatus_db, get_db
+from vorlagellm.rag import build_apparatus_embeddingdocs, build_teidoc_embeddingdocs, get_apparatus_db, get_db, get_teidoc_db
 from .test_tei import TEST_APPARATUS, TEST_DOC
 
 class MockEmbeddingModel:
@@ -24,7 +24,6 @@ def test_build_teidoc_embeddingdocs():
     assert len(embedding_docs) == 43
     assert embedding_docs[0].metadata['verse'] == 'B07K1V1'
     assert embedding_docs[0].page_content == "paulus uocatus apostolus xpi ihu per uoluntatem di et sostenes frater"
-
 
 
 def test_build_apparatus_embeddingdocs():
@@ -57,3 +56,23 @@ def test_get_apparatus_db():
         assert result[0].metadata['index'] == 0
         assert result[0].metadata['verse'] == 'B07K1V1'
         assert result[0].page_content == 'Παῦλος κλητὸς ἀπόστολος Χριστοῦ Ἰησοῦ διὰ θελήματος θεοῦ καὶ Σωσθένης ὁ ἀδελφὸς'
+
+
+def test_get_teidoc_db():
+    doc = read_tei(TEST_DOC)
+
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        output = Path(tmpdirname)/"doc.db"
+        
+        db = get_teidoc_db(doc, MockEmbeddingModel(), output)
+        result = db.similarity_search("text", k=3)
+        assert len(result) == 3
+        assert result[0].metadata['verse'] == 'B07K1V1'
+        assert result[0].page_content == 'paulus uocatus apostolus xpi ihu per uoluntatem di et sostenes frater'
+            
+        # Get persistence
+        db = get_db(None, MockEmbeddingModel(), output)
+        result = db.similarity_search("text", k=3)
+        assert len(result) == 3
+        assert result[0].metadata['verse'] == 'B07K1V1'
+        assert result[0].page_content == 'paulus uocatus apostolus xpi ihu per uoluntatem di et sostenes frater'
