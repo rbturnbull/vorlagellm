@@ -1,17 +1,22 @@
+from pathlib import Path
+import tempfile
 from vorlagellm.tei import (
     read_tei,
-    get_siglum,
-    add_siglum,
-    get_language,
-    get_verses,
-    get_reading_permutations,
-    get_verse_text,
-    has_witness,
-    add_witness_readings,
-    write_tei,
 )
-from vorlagellm.rag import build_apparatus_embeddingdocs, build_teidoc_embeddingdocs
+import numpy as np
+from vorlagellm.rag import build_apparatus_embeddingdocs, build_teidoc_embeddingdocs, get_apparatus_db, get_db
 from .test_tei import TEST_APPARATUS, TEST_DOC
+
+class MockEmbeddingModel:
+    def embed_documents(self, documents):
+        embeddings = []
+        for ii, doc in enumerate(documents):
+            embeddings.append([ii]*128)
+        return embeddings
+
+    def embed_query(self, query):
+        return [0]*128
+
 
 def test_build_teidoc_embeddingdocs():
     doc = read_tei(TEST_DOC)
@@ -30,3 +35,25 @@ def test_build_apparatus_embeddingdocs():
     assert embedding_docs[0].metadata['verse'] == 'B07K1V1'
     assert embedding_docs[0].page_content == 'Παῦλος κλητὸς ἀπόστολος Χριστοῦ Ἰησοῦ διὰ θελήματος θεοῦ καὶ Σωσθένης ὁ ἀδελφὸς'
 
+
+def test_get_apparatus_db():
+    apparatus = read_tei(TEST_APPARATUS)
+
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        output = Path(tmpdirname)/"apparatus.db"
+        
+        db = get_apparatus_db(apparatus, MockEmbeddingModel(), output)
+        result = db.similarity_search("text", k=3)
+        assert len(result) == 3
+        assert result[0].metadata['index'] == 0
+        assert result[0].metadata['verse'] == 'B07K1V1'
+        assert result[0].page_content == 'Παῦλος κλητὸς ἀπόστολος Χριστοῦ Ἰησοῦ διὰ θελήματος θεοῦ καὶ Σωσθένης ὁ ἀδελφὸς'
+        assert result[1].metadata['index'] == 1
+            
+        # Get persistence
+        db = get_db(None, MockEmbeddingModel(), output)
+        result = db.similarity_search("text", k=3)
+        assert len(result) == 3
+        assert result[0].metadata['index'] == 0
+        assert result[0].metadata['verse'] == 'B07K1V1'
+        assert result[0].page_content == 'Παῦλος κλητὸς ἀπόστολος Χριστοῦ Ἰησοῦ διὰ θελήματος θεοῦ καὶ Σωσθένης ὁ ἀδελφὸς'

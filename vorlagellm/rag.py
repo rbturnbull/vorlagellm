@@ -17,7 +17,7 @@ def build_apparatus_embeddingdocs(apparatus) -> list[EmbeddingDocument]:
             metadata = dict(
                 index=ii,
                 verse=verse,
-                readings=permutation.readings,
+                # readings=permutation.readings,
             )
             document= EmbeddingDocument(page_content=permutation.text, metadata=metadata)
             documents.append(document)
