@@ -13,11 +13,13 @@ def build_apparatus_embeddingdocs(apparatus) -> list[EmbeddingDocument]:
     documents = []
     for verse in get_verses(apparatus):
         permutations = get_reading_permutations(apparatus, verse)
-        for permutation in permutations:  
+        for ii, permutation in enumerate(permutations):  
             metadata = dict(
+                index=ii,
                 verse=verse,
+                readings=permutation.readings,
             )
-            document= EmbeddingDocument(page_content=permutation, metadata=metadata)
+            document= EmbeddingDocument(page_content=permutation.text, metadata=metadata)
             documents.append(document)
     return documents
 
