@@ -14,11 +14,12 @@ def my_get_llm(*args, **kwargs):
 
 
 @patch('vorlagellm.llms.ChatOpenAI', my_get_llm)
-def test_main():
+def test_main_add():
     runner = CliRunner()
     with tempfile.TemporaryDirectory() as tmpdirname:
         output = Path(tmpdirname)/"test-apparatus.xml"
         result = runner.invoke(app, [
+            "add",
             str(TEST_DOC),
             str(TEST_APPARATUS),
             str(output),

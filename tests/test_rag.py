@@ -3,8 +3,7 @@ import tempfile
 from vorlagellm.tei import (
     read_tei,
 )
-import numpy as np
-from vorlagellm.rag import build_apparatus_embeddingdocs, build_teidoc_embeddingdocs, get_apparatus_db, get_db, get_teidoc_db
+from vorlagellm.rag import build_apparatus_embeddingdocs, build_teidoc_embeddingdocs, get_apparatus_db, get_db, get_teidoc_db, sentence_components
 from .test_tei import TEST_APPARATUS, TEST_DOC
 
 class MockEmbeddingModel:
@@ -76,3 +75,39 @@ def test_get_teidoc_db():
         assert len(result) == 3
         assert result[0].metadata['verse'] == 'B07K1V1'
         assert result[0].page_content == 'paulus uocatus apostolus xpi ihu per uoluntatem di et sostenes frater'
+
+
+def test_sentence_components_default_word_count():
+    sentence = "This is an example sentence"
+    expected_output = ['This is', 'is an', 'an example', 'example sentence']
+    result = sentence_components(sentence)
+    assert result == expected_output, f"Expected {expected_output} but got {result}"
+
+
+def test_sentence_components_word_count_three():
+    sentence = "This is an example sentence"
+    expected_output = ['This is an', 'is an example', 'an example sentence']
+    result = sentence_components(sentence, 3)
+    assert result == expected_output, f"Expected {expected_output} but got {result}"
+
+
+def test_sentence_components_single_word():
+    sentence = "Hello"
+    expected_output = []
+    result = sentence_components(sentence)
+    assert result == expected_output, f"Expected {expected_output} but got {result}"
+
+
+def test__sentence_components_empty_sentence():
+    sentence = ""
+    expected_output = []
+    result = sentence_components(sentence)
+    assert result == expected_output, f"Expected {expected_output} but got {result}"
+
+
+def test_sentence_components_longer_word_count():
+    sentence = "This is an example sentence for testing"
+    expected_output = ['This is an example', 'is an example sentence', 'an example sentence for', 'example sentence for testing']
+    result = sentence_components(sentence, 4)
+    assert result == expected_output, f"Expected {expected_output} but got {result}"
+

@@ -1,12 +1,17 @@
 from pathlib import Path
 from langchain.schema import Document as EmbeddingDocument
-from langchain.vectorstores import Chroma
+from langchain_community.vectorstores import Chroma
 from langchain_openai import OpenAIEmbeddings
 from vorlagellm.tei import (
     get_verses,
     get_reading_permutations,
     get_verse_text,
 )
+
+
+def sentence_components(sentence:str, word_count:int=2) -> list[str]:
+    words = sentence.split()
+    return [" ".join(words[i:i+word_count]) for i in range(len(words) - word_count + 1) ]
 
 
 def build_apparatus_embeddingdocs(apparatus) -> list[EmbeddingDocument]:
