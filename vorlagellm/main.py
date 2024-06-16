@@ -8,7 +8,7 @@ from langchain_openai import OpenAIEmbeddings
 from .llms import get_llm
 from .chains import build_chain
 from .prompts import readings_list_to_str
-from .rag import get_apparatus_db, get_teidoc_db, get_db, sentence_components
+from .rag import get_apparatus_db, get_teidoc_db, get_db, get_similar_verses
 from vorlagellm.tei import (
     read_tei,
     get_siglum,
@@ -115,28 +115,8 @@ def similar(
 ):
     embeddings_model = OpenAIEmbeddings(model="text-embedding-3-large")
     db = get_db(None, embeddings_model, db)
-    verse_results = db.get(where={"verse": verse}, include=['embeddings', 'documents'])
-    if not verse_results['embeddings']:
-        print(f"Verse {verse} not found.")
-        return
-
-    similar_docs = dict()
-    for embedding_vector in verse_results['embeddings']:
-        for similar in db.similarity_search_by_vector(embedding_vector):
-            similar_verse = similar.metadata['verse']
-
-            if similar_verse != verse and similar_verse not in similar_docs:
-                similar_docs[similar_verse] = similar
+    similar_verses = get_similar_verses(db, verse)
     
-    for verse_text in verse_results['documents']:
-        for components in sentence_components(verse_text, 2):
-            for similar in db.similarity_search(components):
-                similar_verse = similar.metadata['verse']
-
-                if similar_verse != verse and similar_verse not in similar_docs:
-                    similar_docs[similar_verse] = similar
-
-    verse_text = verse_results['documents'][0]
-    console.print(f"Similar verses to [bold red]{verse}[/bold red]: {verse_text}")
-    for similar_verse, doc in similar_docs.items():
-        console.print(f"[bold red]{similar_verse}[/bold red]: {doc.page_content}")
+    console.print(f"Similar verses to [bold red]{verse}[/bold red]:")
+    for similar_verse, doc in similar_verses.items():
+        console.print(f"[green]{similar_verse}[/green]: {doc.page_content}")

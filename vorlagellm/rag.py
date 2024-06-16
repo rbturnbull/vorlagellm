@@ -14,6 +14,31 @@ def sentence_components(sentence:str, word_count:int=2) -> list[str]:
     return [" ".join(words[i:i+word_count]) for i in range(len(words) - word_count + 1) ]
 
 
+def get_similar_verses(db, verse:str) -> dict[str,EmbeddingDocument]:
+    verse_results = db.get(where={"verse": verse}, include=['embeddings', 'documents'])
+    if not verse_results['embeddings']:
+        print(f"Verse {verse} not found.")
+        return
+
+    similar_docs = dict()
+    for embedding_vector in verse_results['embeddings']:
+        for similar in db.similarity_search_by_vector(embedding_vector):
+            similar_verse = similar.metadata['verse']
+
+            if similar_verse != verse and similar_verse not in similar_docs:
+                similar_docs[similar_verse] = similar
+    
+    for verse_text in verse_results['documents']:
+        for components in sentence_components(verse_text, 2):
+            for similar in db.similarity_search(components):
+                similar_verse = similar.metadata['verse']
+
+                if similar_verse != verse and similar_verse not in similar_docs:
+                    similar_docs[similar_verse] = similar    
+    
+    return similar_docs
+
+
 def build_apparatus_embeddingdocs(apparatus) -> list[EmbeddingDocument]:
     documents = []
     for verse in get_verses(apparatus):
