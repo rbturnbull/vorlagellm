@@ -16,6 +16,7 @@ def build_prompt(**kwargs):
             "You may choose more than one {apparatus_language} reading if more than one may have been the source. "
             "Just give the number of each {apparatus_language} reading, separated by a comma. "
             "If none could have been the source of the {doc_language} text, then you should answer 'NONE'\n\n"
+            "After you give the numbers for the readings, print 5 hyphens '-----' and then give a justification for why those readings are plausible sources for the tranlation into {doc_language} considering the translation technique.\n\n"
 
             # "For example, here is an Arabic text:\n"
             # ""
@@ -30,7 +31,9 @@ def build_prompt(**kwargs):
 
             "Here is the {doc_language} text to analyze:\n '{text}'\n"
             
-            "Here is list of {apparatus_language} readings:\n{readings}\n"
+            "Here is list of potential {apparatus_language} readings:\n{readings}\n"
+
+            "{similar_verse_examples}"
 
             "Now list the plausible {apparatus_language} readings which may have been the source of the {doc_language} text."
         ),

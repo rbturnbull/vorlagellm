@@ -11,7 +11,7 @@ def test_build_prompt():
         "good afternoon",
     ]
     readings_str = readings_list_to_str(readings)
-    prompt = build_prompt(doc_language="Arabic", apparatus_language="English")
+    prompt = build_prompt(doc_language="Arabic", apparatus_language="English", similar_verse_examples="")
     assert isinstance(prompt, ChatPromptTemplate)
     result = prompt.invoke(dict(text="صباح الخير", readings=readings_str))
     result_str = result.to_string()

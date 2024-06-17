@@ -26,7 +26,7 @@ console = Console()
 app = typer.Typer()
 
 DEFAULT_MODEL_ID = "gpt-4o"
-
+DEFAULT_EMBEDDING_MODEL_ID = "text-embedding-3-large"
 
 @app.command()
 def add(
@@ -39,6 +39,7 @@ def add(
     apparatus_db:Path=None,
     doc_db:Path=None,
     siglum:str="",
+    include:list[str]=None,
 ):
     llm = get_llm(hf_auth=hf_auth, openai_api_key=openai_api_key, model_id=model_id)
     doc_path = doc
@@ -48,7 +49,7 @@ def add(
 
     # Add as witness to apparatus
     siglum = siglum or get_siglum(doc)
-    assert siglum, "Could not determine siglum"
+    assert siglum, f"Could not determine siglum in '{doc_path}'. Please add a siglum to the TEI XML or add a siglum in the command line with --siglam"
     add_siglum(apparatus, siglum)
 
     # Get languages
@@ -60,7 +61,7 @@ def add(
 
     # Create database for apparatus
     if doc_db:
-        embeddings_model = OpenAIEmbeddings(model="text-embedding-3-large")
+        embeddings_model = OpenAIEmbeddings(model=DEFAULT_EMBEDDING_MODEL_ID)
         doc_db = get_teidoc_db(doc, model=embeddings_model, path=doc_db)
             
     # if apparatus_db:
@@ -69,25 +70,58 @@ def add(
     # Create chain to use
     chain = build_chain(llm, doc_language=doc_language, apparatus_language=apparatus_language)
 
-    for verse in track(get_verses(apparatus)):
+    verses = get_verses(apparatus)
+    if include:
+        verses = [v for v in verses if v in include]
+
+    for verse in verses:
+    # for verse in track(verses):
         print("Processing verse", verse)
         permutations = get_reading_permutations(apparatus, verse)
         if len(permutations) < 2:
             continue
         readings = readings_list_to_str([permutation.text for permutation in permutations])
         text = get_verse_text(doc, verse)
-        console.print(f"[bold] {verse}: [blue]{text}")
-        results = chain.invoke(dict(
+
+        similar_verse_examples = ""
+        
+        if doc_db:
+            similar_verses = get_similar_verses(doc_db, verse)
+            similar_verse_examples = (
+                f"Here are {len(similar_verses)} similar texts to the one that you need to analyze. "
+                f"You will see the {doc_language} language text and then all potential {apparatus_language} source texts. "
+                f"Even though might not clear which {apparatus_language} was the actual source, consider the translation technique going from {apparatus_language} to {doc_language}.\n"
+                "See the way that the translator has translated particular words and gramatical constructions. \n\n"
+            )
+            for example_index, similar_verse in enumerate(similar_verses):
+                similar_verse_permutations = get_reading_permutations(apparatus, similar_verse)
+                similar_readings = readings_list_to_str([similar_verse_permutation.text for similar_verse_permutation in similar_verse_permutations])
+                similar_verse_examples += (
+                    f"{apparatus_language} example {example_index+1}:\n{similar_verses[similar_verse].page_content}\n"
+                    f"Available {apparatus_language}:\n{similar_readings}\n\n"
+                )
+
+            similar_verse_examples += (
+                f"Here again is the {doc_language} text to analyze:\n '{text}'\n"
+                f"Here again is list of potential {apparatus_language} readings:\n{readings}\n"
+            )           
+        
+        console.print(f"[bold]{verse}: [blue]{text}")
+        results, justification = chain.invoke(dict(
             text=get_verse_text(doc, verse),
             readings=readings,
+            similar_verse_examples=similar_verse_examples,
         ))
 
         for index, permutation in enumerate(permutations):
             if index in results:
-                console.print(f"[bold green] {permutation.text}")
+                console.print(f"[bold green]✓ {permutation.text}")
                 add_witness_readings(permutation.readings, siglum)
             else:
-                console.print(f"[grey62] {permutation.text}")
+                console.print(f"[grey62]𐄂 {permutation.text}")
+
+        if justification:
+            console.print(justification, style="blue")
 
     # Write TEI XML output
     print("Writing TEI XML output to", output)
@@ -101,7 +135,7 @@ def doc_db(
     doc: Path, 
     db:Path,
 ):
-    embeddings_model = OpenAIEmbeddings(model="text-embedding-3-large")
+    embeddings_model = OpenAIEmbeddings(model=DEFAULT_EMBEDDING_MODEL_ID)
     doc_path = doc
     doc = read_tei(doc_path)    
     db = get_teidoc_db(doc, model=embeddings_model, path=db)
@@ -113,7 +147,7 @@ def similar(
     db:Path,
     verse:str,
 ):
-    embeddings_model = OpenAIEmbeddings(model="text-embedding-3-large")
+    embeddings_model = OpenAIEmbeddings(model=DEFAULT_EMBEDDING_MODEL_ID)
     db = get_db(None, embeddings_model, db)
     similar_verses = get_similar_verses(db, verse)
     

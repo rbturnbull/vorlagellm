@@ -21,5 +21,5 @@ def test_build_chain():
     readings_str = readings_list_to_str(readings)
     chain = build_chain(llm=mock_llm, doc_language="Arabic", apparatus_language="English")
     assert chain is not None
-    result = chain.invoke(dict(text="صباح الخير", readings=readings_str))
-    assert result == [0,2]
+    result = chain.invoke(dict(text="صباح الخير", readings=readings_str, similar_verse_examples=""))
+    assert result[0] == [0,2]

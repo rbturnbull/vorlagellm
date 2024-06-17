@@ -12,6 +12,7 @@ from .languages import convert_language_code
 class Permutation:
     text:str
     readings:list[Element]
+    apps:list[Element]=None
 
 
 def read_tei(path:Path) -> ElementTree:
@@ -75,9 +76,12 @@ def get_reading_permutations(apparatus:ElementTree|Element, verse:str) -> list[P
 
     permutations = [Permutation(text="", readings=[])]
 
+    apps = []
+
     for child in verse_element:
         tag = re.sub(r"{.*}", "", child.tag)
         if tag == "app":
+            apps.append(child)
             new_permutations = []
             readings = find_elements(child, ".//lem") + find_elements(child, ".//rdg")
             for reading in readings:
@@ -93,7 +97,7 @@ def get_reading_permutations(apparatus:ElementTree|Element, verse:str) -> list[P
     def clean_text(text:str) -> str:
         return re.sub(r"\s+", " ", text.strip())
 
-    return [Permutation(text=clean_text(permutation.text), readings=permutation.readings) for permutation in permutations]
+    return [Permutation(text=clean_text(permutation.text), readings=permutation.readings, apps=apps) for permutation in permutations]
 
 
 def extract_text(node:Element) -> str:
