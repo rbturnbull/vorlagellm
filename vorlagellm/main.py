@@ -19,6 +19,7 @@ from vorlagellm.tei import (
     get_verse_text,
     add_witness_readings,
     write_tei,
+    add_wit_detail,
 )
 
 console = Console()
@@ -121,6 +122,11 @@ def add(
                 console.print(f"[grey62]𐄂 {permutation.text}")
 
         if justification:
+            apps = set()
+            for permutation in permutations:
+                apps.update(permutation.apps)
+            add_wit_detail(apps, siglum, justification)
+                
             console.print(justification, style="blue")
 
     # Write TEI XML output

@@ -165,3 +165,11 @@ def add_siglum(apparatus:ElementTree|Element, siglum:str) -> Element:
 def has_witness(apparatus:ElementTree|Element, siglum:str) -> bool:
     list_wit = get_witness_list(apparatus)
     return find_element(list_wit, f".//witness[@n='{siglum}']") is not None
+
+
+def add_wit_detail(apps:Element|set[Element], siglum:str, detail:str) -> None:
+    if isinstance(apps, Element):
+        apps = set(apps)
+    for app in apps:
+        element = ET.SubElement(app, "witDetail", wit=siglum, resp="VorlageLLM")
+        element.text = detail

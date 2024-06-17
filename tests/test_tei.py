@@ -10,6 +10,8 @@ from vorlagellm.tei import (
     has_witness,
     add_witness_readings,
     write_tei,
+    find_elements,
+    add_wit_detail,
 )
 from pathlib import Path
 from lxml.etree import _ElementTree as ElementTree
@@ -91,3 +93,17 @@ def test_write_tei():
         assert output.exists()
         new_apparatus = read_tei(output)
         assert has_witness(new_apparatus, "51")
+
+
+def test_add_with_detail():
+    apparatus = read_tei(TEST_APPARATUS)
+    apps = find_elements(apparatus, ".//app")
+
+    add_wit_detail(apps, "SIGLUM", "Justification statement")
+    details = apparatus.findall(".//witDetail")
+    assert len(details) == len(apps)
+    for detail in details:
+        assert detail.text == "Justification statement"
+        assert detail.attrib['wit'] == "SIGLUM"
+
+    
