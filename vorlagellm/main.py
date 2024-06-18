@@ -21,6 +21,7 @@ from vorlagellm.tei import (
     write_tei,
     add_wit_detail,
     find_elements,
+    reading_has_witness,
 )
 
 console = Console()
@@ -173,4 +174,15 @@ def evaluate(
 ):
     apparatus = read_tei(apparatus)
     readings = find_elements(apparatus, ".//rdg")
+    tp = sum(reading_has_witness(reading, gold_siglum) and reading_has_witness(reading, prediction_siglum) for reading in readings)
+    fp = sum(reading_has_witness(reading, prediction_siglum) and not reading_has_witness(reading, gold_siglum) for reading in readings)
+    fn = sum(reading_has_witness(reading, gold_siglum) and not reading_has_witness(reading, prediction_siglum) for reading in readings)
+    tn = sum(not reading_has_witness(reading, gold_siglum) and not reading_has_witness(reading, prediction_siglum) for reading in readings)
+    recall = tp / (tp + fn)
+    precision = tp / (tp + fp)
+    f1 = 2 * (precision * recall) / (precision + recall)
+    console.print(f"Recall: {recall}")
+    console.print(f"Precision: {precision}")
+    console.print(f"F1: {f1}")
+
     
