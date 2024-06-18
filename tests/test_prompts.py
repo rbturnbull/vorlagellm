@@ -16,5 +16,5 @@ def test_build_prompt():
     result = prompt.invoke(dict(text="صباح الخير", readings=readings_str))
     result_str = result.to_string()
     assert "System: You are a text critic who is an expert in English and Arabic" in result_str
-    assert "AI: The English texts which plausibly could be translated into the Arabic 'صباح الخير' are: " in result_str
+    assert "AI: The English texts which could be translated into the Arabic 'صباح الخير' are: " in result_str
     

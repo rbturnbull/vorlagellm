@@ -7,7 +7,7 @@ from vorlagellm.prompts import readings_list_to_str
 def mock_llm(prompt):
     result_str = prompt.to_string()
     assert "System: You are a text critic who is an expert in English and Arabic" in result_str
-    assert "AI: The English texts which plausibly could be translated into the Arabic 'صباح الخير' are: " in result_str
+    assert "AI: The English texts which could be translated into the Arabic 'صباح الخير' are: " in result_str
 
     return "1,3"
 

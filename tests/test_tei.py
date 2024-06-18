@@ -12,8 +12,10 @@ from vorlagellm.tei import (
     write_tei,
     find_elements,
     add_wit_detail,
+    reading_has_witness
 )
 from pathlib import Path
+from lxml.etree import Element
 from lxml.etree import _ElementTree as ElementTree
 
 TEST_DIR = Path(__file__).parent/"test-data"
@@ -80,7 +82,7 @@ def test_get_reading_permutations():
     assert permutations[0].text == "Παῦλος κλητὸς ἀπόστολος Χριστοῦ Ἰησοῦ διὰ θελήματος θεοῦ καὶ Σωσθένης ὁ ἀδελφὸς"
     assert permutations[1].text == "Παῦλος κλητὸς ἀπόστολος Ἰησοῦ Χριστοῦ διὰ θελήματος θεοῦ καὶ Σωσθένης ὁ ἀδελφὸς"
 
-    assert permutations[0].readings[0].tag == "{http://www.tei-c.org/ns/1.0}lem"
+    assert permutations[0].readings[0].tag == "{http://www.tei-c.org/ns/1.0}rdg"
     assert permutations[1].readings[0].tag == "{http://www.tei-c.org/ns/1.0}rdg"
 
 
@@ -106,4 +108,30 @@ def test_add_with_detail():
         assert detail.text == "Justification statement"
         assert detail.attrib['wit'] == "SIGLUM"
 
-    
+
+def test_reading_has_witness_with_siglum():
+    reading = Element('rdg', wit="#NIV #WH")
+    assert reading_has_witness(reading, 'NIV') == True, "Test failed: #NIV should be found."
+
+def test_reading_has_witness_with_prefixed_siglum():
+    reading = Element('rdg', wit="#NIV #WH")
+    assert reading_has_witness(reading, '#NIV') == True, "Test failed: #NIV should be found."
+
+def test_reading_has_witness_without_siglum():
+    reading = Element('rdg', wit="#WH #Treg")
+    assert reading_has_witness(reading, 'NIV') == False, "Test failed: #NIV should not be found."
+
+def test_reading_has_witness_without_wit_attribute():
+    reading = Element('rdg')
+    assert reading_has_witness(reading, 'NIV') == False, "Test failed: wit attribute is missing, should return False."
+
+def test_reading_has_witness_with_empty_wit_attribute():
+    reading = Element('rdg', wit="")
+    assert reading_has_witness(reading, 'NIV') == False, "Test failed: wit attribute is empty, should return False."
+
+
+def test_reading_has_witness_with_multiple_witnesses():
+    reading = Element('rdg', wit="#NIV #WH #Treg")
+    assert reading_has_witness(reading, 'Treg') == True, "Test failed: #Treg should be found."
+    assert reading_has_witness(reading, 'WH') == True, "Test failed: #WH should be found."
+

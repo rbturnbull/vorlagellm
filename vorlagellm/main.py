@@ -20,6 +20,7 @@ from vorlagellm.tei import (
     add_witness_readings,
     write_tei,
     add_wit_detail,
+    find_elements,
 )
 
 console = Console()
@@ -41,6 +42,7 @@ def add(
     doc_db:Path=None,
     siglum:str="",
     include:list[str]=None,
+    window:int=3,    
 ):
     llm = get_llm(hf_auth=hf_auth, openai_api_key=openai_api_key, model_id=model_id)
     doc_path = doc
@@ -87,7 +89,7 @@ def add(
         similar_verse_examples = ""
         
         if doc_db:
-            similar_verses = get_similar_verses(doc_db, verse)
+            similar_verses = get_similar_verses(doc_db, verse, window=window)
             similar_verse_examples = (
                 f"Here are {len(similar_verses)} similar texts to the one that you need to analyze. "
                 f"You will see the {doc_language} language text and then all potential {apparatus_language} source texts. "
@@ -98,7 +100,7 @@ def add(
                 similar_verse_permutations = get_reading_permutations(apparatus, similar_verse)
                 similar_readings = readings_list_to_str([similar_verse_permutation.text for similar_verse_permutation in similar_verse_permutations])
                 similar_verse_examples += (
-                    f"{apparatus_language} example {example_index+1}:\n{similar_verses[similar_verse].page_content}\n"
+                    f"{apparatus_language} example {example_index+1} [{similar_verse}]:\n{similar_verses[similar_verse].page_content}\n"
                     f"Available {apparatus_language}:\n{similar_readings}\n\n"
                 )
 
@@ -152,11 +154,23 @@ def doc_db(
 def similar(
     db:Path,
     verse:str,
+    window:int=3,
 ):
     embeddings_model = OpenAIEmbeddings(model=DEFAULT_EMBEDDING_MODEL_ID)
     db = get_db(None, embeddings_model, db)
-    similar_verses = get_similar_verses(db, verse)
+    similar_verses = get_similar_verses(db, verse, window=window)
     
     console.print(f"Similar verses to [bold red]{verse}[/bold red]:")
     for similar_verse, doc in similar_verses.items():
         console.print(f"[green]{similar_verse}[/green]: {doc.page_content}")
+
+
+@app.command()
+def evaluate(
+    apparatus:Path,
+    gold_siglum:str,
+    prediction_siglum:str,
+):
+    apparatus = read_tei(apparatus)
+    readings = find_elements(apparatus, ".//rdg")
+    

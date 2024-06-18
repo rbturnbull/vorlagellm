@@ -83,7 +83,8 @@ def get_reading_permutations(apparatus:ElementTree|Element, verse:str) -> list[P
         if tag == "app":
             apps.append(child)
             new_permutations = []
-            readings = find_elements(child, ".//lem") + find_elements(child, ".//rdg")
+            # readings = find_elements(child, ".//lem") + find_elements(child, ".//rdg")
+            readings = find_elements(child, ".//rdg")
             for reading in readings:
                 reading_text = extract_text(reading) or ""
                 for permutation in permutations:
@@ -130,6 +131,8 @@ def get_verse_text(doc:ElementTree|Element, verse:str) -> str|None:
 
 def add_witness_readings( readings:list[Element], siglum:str) -> None:
     for reading in readings:
+        if 'wit' not in reading.attrib:
+            reading.attrib['wit'] = ""
         reading.attrib['wit'] += f" {siglum}"
         reading.attrib['wit'] = reading.attrib['wit'].strip()
 
@@ -166,6 +169,14 @@ def has_witness(apparatus:ElementTree|Element, siglum:str) -> bool:
     list_wit = get_witness_list(apparatus)
     return find_element(list_wit, f".//witness[@n='{siglum}']") is not None
 
+
+def reading_has_witness(reading:Element, siglum:str) -> bool:
+    if 'wit' not in reading.attrib:
+        return False
+    
+    witnesses = reading.attrib['wit'].split()
+    return (siglum in witnesses or f"#{siglum}" in witnesses)
+    
 
 def add_wit_detail(apps:Element|set[Element], siglum:str, detail:str) -> None:
     if isinstance(apps, Element):

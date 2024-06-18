@@ -41,9 +41,9 @@
           <ab n="B07K1V1">
             <span>Παῦλος κλητὸς ἀπόστολος</span>
             <app>
-              <lem wit="Treg NA28">
+              <rdg wit="Treg NA28">
                 <span>Χριστοῦ Ἰησοῦ</span>
-              </lem>
+              </rdg>
               <rdg wit="WH RP">
                 <span>Ἰησοῦ Χριστοῦ</span>
               </rdg>
@@ -53,18 +53,18 @@
           <ab n="B07K1V2">
             <span>τῇ ἐκκλησίᾳ τοῦ θεοῦ,</span>
             <app>
-              <lem wit="Treg">
+              <rdg wit="Treg">
                 <span>ἡγιασμένοις ἐν Χριστῷ Ἰησοῦ, τῇ οὔσῃ ἐν Κορίνθῳ,</span>
-              </lem>
+              </rdg>
               <rdg wit="WH NA28 RP">
                 <span>τῇ οὔσῃ ἐν Κορίνθῳ ἡγιασμένοις ἐν Χριστῷ Ἰησοῦ</span>
               </rdg>
             </app>
             <span>κλητοῖς ἁγίοις, σὺν πᾶσιν τοῖς ἐπικαλουμένοις τὸ ὄνομα τοῦ κυρίου ἡμῶν Ἰησοῦ Χριστοῦ ἐν παντὶ τόπῳ</span>
             <app>
-              <lem wit="WH Treg NA28">
+              <rdg wit="WH Treg NA28">
                 <span>αὐτῶν</span>
-              </lem>
+              </rdg>
               <rdg wit="RP">
                 <span>αὐτῶν τε</span>
               </rdg>
@@ -77,9 +77,9 @@
           <ab n="B07K1V4">
             <span>Εὐχαριστῶ τῷ θεῷ</span>
             <app>
-              <lem wit="Treg NA28 RP">
+              <rdg wit="Treg NA28 RP">
                 <span>μου</span>
-              </lem>
+              </rdg>
               <rdg wit="WH">
                 <span/>
               </rdg>
@@ -115,9 +115,9 @@
           </ab>
           <ab n="B07K1V14">
             <app>
-              <lem wit="WH NIV">
+              <rdg wit="WH NIV">
                 <span>εὐχαριστῶ</span>
-              </lem>
+              </rdg>
               <rdg wit="Treg RP NA28">
                 <span>εὐχαριστῶ τῷ θεῷ</span>
               </rdg>
@@ -127,9 +127,9 @@
           <ab n="B07K1V15">
             <span>ἵνα μή τις εἴπῃ ὅτι εἰς τὸ ἐμὸν ὄνομα</span>
             <app>
-              <lem wit="WH Treg NA28">
+              <rdg wit="WH Treg NA28">
                 <span>ἐβαπτίσθητε·</span>
-              </lem>
+              </rdg>
               <rdg wit="RP">
                 <span>ἐβάπτισα</span>
               </rdg>
@@ -150,9 +150,9 @@
           <ab n="B07K1V20">
             <span>ποῦ σοφός; ποῦ γραμματεύς; ποῦ συζητητὴς τοῦ αἰῶνος τούτου; οὐχὶ ἐμώρανεν ὁ θεὸς τὴν σοφίαν τοῦ</span>
             <app>
-              <lem wit="WH Treg NA28">
+              <rdg wit="WH Treg NA28">
                 <span>κόσμου;</span>
-              </lem>
+              </rdg>
               <rdg wit="RP">
                 <span>κόσμου τούτου</span>
               </rdg>
@@ -164,9 +164,9 @@
           <ab n="B07K1V22">
             <span>ἐπειδὴ καὶ Ἰουδαῖοι</span>
             <app>
-              <lem wit="WH Treg NA28">
+              <rdg wit="WH Treg NA28">
                 <span>σημεῖα</span>
-              </lem>
+              </rdg>
               <rdg wit="RP">
                 <span>σημεῖον</span>
               </rdg>
@@ -176,9 +176,9 @@
           <ab n="B07K1V23">
             <span>ἡμεῖς δὲ κηρύσσομεν Χριστὸν ἐσταυρωμένον, Ἰουδαίοις μὲν σκάνδαλον</span>
             <app>
-              <lem wit="WH Treg NA28">
+              <rdg wit="WH Treg NA28">
                 <span>ἔθνεσιν</span>
-              </lem>
+              </rdg>
               <rdg wit="RP">
                 <span>Ἕλλησιν</span>
               </rdg>
@@ -191,9 +191,9 @@
           <ab n="B07K1V25">
             <span>ὅτι τὸ μωρὸν τοῦ θεοῦ σοφώτερον τῶν ἀνθρώπων ἐστίν, καὶ τὸ ἀσθενὲς τοῦ θεοῦ ἰσχυρότερον τῶν</span>
             <app>
-              <lem wit="WH Treg NA28">
+              <rdg wit="WH Treg NA28">
                 <span>ἀνθρώπων.</span>
-              </lem>
+              </rdg>
               <rdg wit="RP">
                 <span>ἀνθρώπων ἐστίν</span>
               </rdg>
@@ -205,9 +205,9 @@
           <ab n="B07K1V27">
             <span>ἀλλὰ τὰ μωρὰ τοῦ κόσμου ἐξελέξατο ὁ θεός, ἵνα</span>
             <app>
-              <lem wit="WH Treg NA28">
+              <rdg wit="WH Treg NA28">
                 <span>καταισχύνῃ τοὺς σοφούς</span>
-              </lem>
+              </rdg>
               <rdg wit="RP">
                 <span>τοὺς σοφούς καταισχύνῃ</span>
               </rdg>
@@ -217,9 +217,9 @@
           <ab n="B07K1V28">
             <span>καὶ τὰ ἀγενῆ τοῦ κόσμου καὶ τὰ ἐξουθενημένα ἐξελέξατο ὁ θεός,</span>
             <app>
-              <lem wit="Treg NA28">
+              <rdg wit="Treg NA28">
                 <span>τὰ</span>
-              </lem>
+              </rdg>
               <rdg wit="WH RP">
                 <span>καὶ τὰ</span>
               </rdg>
@@ -232,9 +232,9 @@
           <ab n="B07K1V30">
             <span>ἐξ αὐτοῦ δὲ ὑμεῖς ἐστε ἐν Χριστῷ Ἰησοῦ, ὃς ἐγενήθη</span>
             <app>
-              <lem wit="WH Treg NA28">
+              <rdg wit="WH Treg NA28">
                 <span>σοφία ἡμῖν</span>
-              </lem>
+              </rdg>
               <rdg wit="RP">
                 <span>ἡμῖν σοφία</span>
               </rdg>
