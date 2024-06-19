@@ -12,9 +12,12 @@ from vorlagellm.tei import (
     write_tei,
     find_elements,
     add_wit_detail,
-    reading_has_witness
+    reading_has_witness,
+    find_parent,
+    write_elements,
 )
 from pathlib import Path
+from lxml import etree as ET
 from lxml.etree import Element
 from lxml.etree import _ElementTree as ElementTree
 
@@ -134,4 +137,123 @@ def test_reading_has_witness_with_multiple_witnesses():
     reading = Element('rdg', wit="#NIV #WH #Treg")
     assert reading_has_witness(reading, 'Treg') == True, "Test failed: #Treg should be found."
     assert reading_has_witness(reading, 'WH') == True, "Test failed: #WH should be found."
+
+
+
+def test_find_parent_ab():
+    xml_data = """
+    <root>
+        <ab>
+            <section>
+                <target>Some content</target>
+            </section>
+        </ab>
+    </root>
+    """
+    root = ET.fromstring(xml_data)
+    target_element = root.find('.//target')
+    parent_element = find_parent(target_element, 'ab')
+    assert parent_element is not None
+    assert parent_element.tag == 'ab'
+
+def test_find_parent_noab():
+    xml_data = """
+    <root>
+        <noab>
+            <section>
+                <target>Another content</target>
+            </section>
+        </noab>
+    </root>
+    """
+    root = ET.fromstring(xml_data)
+    target_element = root.find('.//target')
+    parent_element = find_parent(target_element, 'ab')
+    assert parent_element is None
+
+def test_find_parent_root():
+    xml_data = """
+    <root>
+        <ab>
+            <section>
+                <target>Some content</target>
+            </section>
+        </ab>
+    </root>
+    """
+    root = ET.fromstring(xml_data)
+    ab_element = root.find('.//ab')
+    parent_element = find_parent(ab_element, 'root')
+    assert parent_element is not None
+    assert parent_element.tag == 'root'
+
+
+def test_find_parent_nonexistent():
+    xml_data = """
+    <root>
+        <ab>
+            <section>
+                <target>Some content</target>
+            </section>
+        </ab>
+    </root>
+    """
+    root = ET.fromstring(xml_data)
+    target_element = root.find('.//target')
+    parent_element = find_parent(target_element, 'nonexistent')
+    assert parent_element is None
+
+
+def test_write_elements():
+    # Create sample XML elements
+    child1 = Element('child1')
+    child1.text = 'Content 1'
+    child2 = Element('child2')
+    child2.text = 'Content 2'
+    children = [child1, child2]
+
+    # Create a temporary file
+    with tempfile.NamedTemporaryFile() as tmp_file:
+        output_file = Path(tmp_file.name)
+    
+        # Write elements to the temporary file
+        write_elements(children, output_file)
+        
+        # Parse the written file and verify its content
+        tree = read_tei(output_file)
+        root = tree.getroot()
+        
+        assert root.tag == 'body'
+        assert len(root) == 2
+        assert root[0].tag == 'child1'
+        assert root[0].text == 'Content 1'
+        assert root[1].tag == 'child2'
+        assert root[1].text == 'Content 2'
+
+
+def test_write_elements_custom_root_tag():
+    # Create sample XML elements
+    child1 = Element('child1')
+    child1.text = 'Content 1'
+    child2 = Element('child2')
+    child2.text = 'Content 2'
+    children = [child1, child2]
+
+    # Create a temporary file
+    with tempfile.NamedTemporaryFile() as tmp_file:
+        output_file = Path(tmp_file.name)
+    
+        # Write elements to the temporary file with a custom root tag
+        write_elements(children, output_file, root_tag='custom_root')
+        
+        # Parse the written file and verify its content
+        tree = read_tei(output_file)
+        root = tree.getroot()
+        
+        assert root.tag == 'custom_root'
+        assert len(root) == 2
+        assert root[0].tag == 'child1'
+        assert root[0].text == 'Content 1'
+        assert root[1].tag == 'child2'
+        assert root[1].text == 'Content 2'
 

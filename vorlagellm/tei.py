@@ -2,6 +2,8 @@ from pathlib import Path
 from lxml import etree as ET
 from lxml.etree import _ElementTree as ElementTree
 from lxml.etree import _Element as Element
+from lxml.etree import Element as new_element
+from lxml.etree import ElementTree as new_element_tree
 import re
 from dataclasses import dataclass
 
@@ -16,8 +18,9 @@ class Permutation:
 
 
 def read_tei(path:Path) -> ElementTree:
+    parser = ET.XMLParser(remove_blank_text=True)
     with open(path, 'r') as f:
-        return ET.parse(f)
+        return ET.parse(f, parser)
 
 
 def find_element(doc:ElementTree|Element, xpath:str) -> Element|None:
@@ -133,6 +136,8 @@ def add_witness_readings( readings:list[Element], siglum:str) -> None:
     for reading in readings:
         if 'wit' not in reading.attrib:
             reading.attrib['wit'] = ""
+        if not siglum.startswith("#"):
+            siglum = "#" + siglum
         reading.attrib['wit'] += f" {siglum}"
         reading.attrib['wit'] = reading.attrib['wit'].strip()
 
@@ -184,3 +189,65 @@ def add_wit_detail(apps:Element|set[Element], siglum:str, detail:str) -> None:
     for app in apps:
         element = ET.SubElement(app, "witDetail", wit=siglum, resp="VorlageLLM")
         element.text = detail
+
+
+def find_parent(element:Element, tag:str) -> Element|None:
+    """
+    Finds the nearest ancestor of the given element with the specified tag.
+
+    Args:
+        element (Element): The starting XML element from which to search upward.
+        tag (str): The tag name of the ancestor element to find.
+
+    Returns:
+        Optional[Element]: The nearest ancestor element with the specified tag, or None if no such element is found.
+
+    Example:
+        >>> from xml.etree.ElementTree import Element
+        >>> root = Element('root')
+        >>> ab = Element('ab')
+        >>> section = Element('section')
+        >>> target = Element('target')
+        >>> root.append(ab)
+        >>> ab.append(section)
+        >>> section.append(target)
+        >>> result = find_parent(target, 'ab')
+        >>> assert result == ab
+
+        This will find the <ab> ancestor of the <target> element.
+    """
+    while element is not None:
+        element_tag = re.sub(r"{.*}", "", element.tag)
+        if element_tag == tag:
+            return element
+        element = element.getparent()
+    return None
+
+
+def strip_namespace(element: Element) -> Element:
+    """Remove namespace from an element and its children."""
+    element.tag = element.tag.split('}', 1)[-1]  # Remove namespace
+    for elem in element.iter():
+        elem.tag = elem.tag.split('}', 1)[-1]  # Remove namespace
+    return element
+
+
+def write_elements(elements:list[Element], output_file:Path, root_tag:str="body") -> None:
+    """
+    Writes a list of XML elements to a file, wrapping them in a specified root element.
+
+    Args:
+        elements (list[Element]): List of XML elements to be written.
+        output_file (Path): Path object specifying the file where the XML will be written.
+        root_tag (str): Tag name for the root element that will wrap the elements. Defaults to "body".
+
+    Returns:
+        None: This function does not return any value. It writes the XML structure to the specified file.
+    """
+    root = new_element(root_tag)
+    for element in elements:
+        if element is not None:
+            root.append(strip_namespace(element))
+    
+    tree = new_element_tree(root)
+    write_tei(tree, output_file)

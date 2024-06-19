@@ -27,4 +27,4 @@ def test_main_add():
         
         assert result.exit_code == 0
         output_text = output.read_text()
-        assert '<rdg wit="Treg NA28 51">' in output_text
+        assert '<rdg wit="Treg NA28 #51">' in output_text

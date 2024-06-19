@@ -22,6 +22,8 @@ from vorlagellm.tei import (
     add_wit_detail,
     find_elements,
     reading_has_witness,
+    write_elements,
+    find_parent,
 )
 
 console = Console()
@@ -132,9 +134,9 @@ def add(
                 
             console.print(justification, style="blue")
 
-    # Write TEI XML output
-    print("Writing TEI XML output to", output)
-    write_tei(apparatus, output)
+        # Write TEI XML output
+        print("Writing TEI XML output to", output)
+        write_tei(apparatus, output)
 
     return apparatus
 
@@ -171,18 +173,30 @@ def evaluate(
     apparatus:Path,
     gold_siglum:str,
     prediction_siglum:str,
+    false_positives:Path=None,
+    false_negatives:Path=None,
 ):
     apparatus = read_tei(apparatus)
     readings = find_elements(apparatus, ".//rdg")
     tp = sum(reading_has_witness(reading, gold_siglum) and reading_has_witness(reading, prediction_siglum) for reading in readings)
     fp = sum(reading_has_witness(reading, prediction_siglum) and not reading_has_witness(reading, gold_siglum) for reading in readings)
     fn = sum(reading_has_witness(reading, gold_siglum) and not reading_has_witness(reading, prediction_siglum) for reading in readings)
-    tn = sum(not reading_has_witness(reading, gold_siglum) and not reading_has_witness(reading, prediction_siglum) for reading in readings)
     recall = tp / (tp + fn)
     precision = tp / (tp + fp)
     f1 = 2 * (precision * recall) / (precision + recall)
-    console.print(f"Recall: {recall}")
-    console.print(f"Precision: {precision}")
-    console.print(f"F1: {f1}")
+    console.print(f"Recall: {recall:.1%}")
+    console.print(f"Precision: {precision:.1%}")
+    console.print(f"F1: {f1:.1%}")
 
-    
+    if false_positives:
+        fp_readings = [reading for reading in readings if reading_has_witness(reading, prediction_siglum) and not reading_has_witness(reading, gold_siglum)]
+        abs = set(find_parent(reading, "ab") for reading in fp_readings)
+        breakpoint()
+        console.print(f"Writing {len(fp_readings)} false positives to {false_positives}")
+        write_elements(abs, false_positives, "falsePositives")
+
+    if false_negatives:
+        fn_readings = [reading for reading in readings if reading_has_witness(reading, gold_siglum) and not reading_has_witness(reading, prediction_siglum)]
+        abs = set(find_parent(reading, "ab") for reading in fn_readings)
+        console.print(f"Writing {len(fn_readings)} false negatives to {false_negatives}")
+        write_elements(abs, false_negatives, "falseNegatives")

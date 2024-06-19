@@ -20,6 +20,8 @@ def build_prompt(**kwargs):
             "After you give the numbers for the readings, print 5 hyphens '-----' and then give a justification for why those readings are possible sources for the tranlation into {doc_language} considering the translation technique.\n\n"
             "Use the examples of translation technique to inform your decision. For example, if you see examples of the {doc_language} text translating strictly word-for-word, then you can infer that the source {apparatus_language} should be very close and omitted words or phrases in the translation were probably missing in the source. "
             "If in the translation technique you see examples of {doc_language} text translating the concepts of the source {apparatus_language} in the examples, then any {apparatus_language} text could be the source of the {doc_language} so long as the same concepts are conveyed. "
+            "If the translation technique looks like it preserves word order in certain circumstances and you see the same circumstances in the current text, then you prefer a source {apparatus_language} reading that matches the word order. "
+            "But if the translation technique is inconsistent in preserving word order, then you should not consider word order in your decision. "
             "Cite the sentence IDs (given in square brackets) of relevant example sentences in your justification to explain why you decided which was the likely source of the translation. "
 
             
