@@ -65,7 +65,12 @@ def get_language(doc:ElementTree|Element) -> str:
     return convert_language_code(code)
     
 
-    
+def app_has_witness(app:Element, siglum:str) -> bool:
+    """ Returns True if the apparatus has a <rdg> element with the specified siglum."""
+    readings = find_elements(app, ".//rdg")
+    return any(reading_has_witness(reading, siglum) for reading in readings)
+
+
 def get_verses(doc:ElementTree|Element) -> list[str]:
     """ Returns a list of "n" attributes in <ab> elements."""
     ab_elements = find_elements(doc, ".//ab")
@@ -104,19 +109,27 @@ def get_reading_permutations(apparatus:ElementTree|Element, verse:str) -> list[P
     return [Permutation(text=clean_text(permutation.text), readings=permutation.readings, apps=apps) for permutation in permutations]
 
 
-def extract_text(node:Element) -> str:
+def extract_text(node:Element, include_tail:bool=True) -> str:
     text = node.text or ""
     for child in node:
         tag = re.sub(r"{.*}", "", child.tag)
         if tag == "pc":
             continue
-
-        text += extract_text(child) or ""
-    
-        if tag == "w":
+        if tag == "app":            
+            lemma = find_element(child, ".//lem")
+            if lemma is None:
+                lemma = find_element(child, ".//rdg")
+            text += extract_text(lemma) or ""
             text += " "
+        else:
+            text += extract_text(child) or ""
+        
+            if tag == "w":
+                text += " "
 
-    text += node.tail or ""
+    if include_tail:
+        text += node.tail or ""
+
     return text
 
 
@@ -136,6 +149,10 @@ def add_witness_readings( readings:list[Element], siglum:str) -> None:
     for reading in readings:
         if 'wit' not in reading.attrib:
             reading.attrib['wit'] = ""
+
+        if reading_has_witness(reading, siglum):
+            continue
+
         if not siglum.startswith("#"):
             siglum = "#" + siglum
         reading.attrib['wit'] += f" {siglum}"
@@ -183,12 +200,18 @@ def reading_has_witness(reading:Element, siglum:str) -> bool:
     return (siglum in witnesses or f"#{siglum}" in witnesses)
     
 
-def add_wit_detail(apps:Element|set[Element], siglum:str, detail:str) -> None:
+def add_wit_detail(apps:Element|set[Element], siglum:str, note:str="", phrase:str="", phrase_lang:str=""):
     if isinstance(apps, Element):
         apps = set(apps)
     for app in apps:
-        element = ET.SubElement(app, "witDetail", wit=siglum, resp="VorlageLLM")
-        element.text = detail
+        wit_detail = ET.SubElement(app, "witDetail", wit=siglum, resp="VorlageLLM")
+        if phrase:
+            phrase_element = ET.SubElement(wit_detail, "phr")
+            phrase_element.text = phrase
+            if phrase_lang:
+                phrase_element.attrib['xml:lang'] = phrase_lang
+        if note:
+            ET.SubElement(wit_detail, "note").text = note
 
 
 def find_parent(element:Element, tag:str) -> Element|None:
@@ -232,7 +255,7 @@ def strip_namespace(element: Element) -> Element:
     return element
 
 
-def write_elements(elements:list[Element], output_file:Path, root_tag:str="body") -> None:
+def write_elements(elements:list[Element], output_file:Path, root_tag:str="body", **kwargs) -> None:
     """
     Writes a list of XML elements to a file, wrapping them in a specified root element.
 
@@ -244,10 +267,39 @@ def write_elements(elements:list[Element], output_file:Path, root_tag:str="body"
     Returns:
         None: This function does not return any value. It writes the XML structure to the specified file.
     """
-    root = new_element(root_tag)
+    root = new_element(root_tag, **kwargs)
     for element in elements:
         if element is not None:
             root.append(strip_namespace(element))
     
     tree = new_element_tree(root)
     write_tei(tree, output_file)
+
+
+def get_apparatus_verse_text(app:Element) -> str:
+    parent = find_parent(app, 'ab')
+    text = parent.text or ""
+    text = text.strip()
+    text += " "
+    for child in parent:
+        if child == app:
+            lemma = find_element(app, ".//lem")
+            if lemma is None:
+                lemma = find_element(child, ".//rdg")
+            if lemma is None:
+                lemma = app
+            app_text = extract_text(lemma, include_tail=False) or ""
+            app_text = app_text.strip()
+            text += f"〔{app_text}〕"
+            if app.tail:
+                text += " " + app.tail.strip()
+        else:
+            child_text = extract_text(child) or ""
+            child_text = child_text.strip()
+            text += child_text or ""
+        
+        text += " "
+
+    text += parent.tail or ""
+    text = re.sub(r"\s+", " ", text.strip())
+    return text    

@@ -40,6 +40,14 @@ def get_similar_verses(db, verse:str, window:int=0) -> dict[str,EmbeddingDocumen
     return similar_docs
 
 
+def get_similar_verses_by_phrase(db, phrase:str) -> set[str]:
+    similar_verses = set()
+    for similar in db.similarity_search(phrase):
+        similar_verses.add(similar.metadata['verse'])
+    
+    return similar_verses
+
+
 def build_apparatus_embeddingdocs(apparatus) -> list[EmbeddingDocument]:
     documents = []
     for verse in get_verses(apparatus):

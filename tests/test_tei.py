@@ -14,7 +14,9 @@ from vorlagellm.tei import (
     add_wit_detail,
     reading_has_witness,
     find_parent,
+    app_has_witness,
     write_elements,
+    get_apparatus_verse_text,
 )
 from pathlib import Path
 from lxml import etree as ET
@@ -108,7 +110,8 @@ def test_add_with_detail():
     details = apparatus.findall(".//witDetail")
     assert len(details) == len(apps)
     for detail in details:
-        assert detail.text == "Justification statement"
+        note = detail.find(".//note")
+        assert note.text == "Justification statement"
         assert detail.attrib['wit'] == "SIGLUM"
 
 
@@ -257,3 +260,108 @@ def test_write_elements_custom_root_tag():
         assert root[1].tag == 'child2'
         assert root[1].text == 'Content 2'
 
+
+def test_app_has_witness_found():
+    xml_str = """
+    <app>
+        <rdg wit="A B C">Text 1</rdg>
+        <rdg wit="D E F">Text 2</rdg>
+    </app>
+    """
+    app = ET.fromstring(xml_str)
+    siglum = "A"
+    assert app_has_witness(app, siglum) == True
+
+def test_app_has_witness_not_found():
+    xml_str = """
+    <app>
+        <rdg wit="A B C">Text 1</rdg>
+        <rdg wit="D E F">Text 2</rdg>
+    </app>
+    """
+    app = ET.fromstring(xml_str)
+    siglum = "G"
+    assert app_has_witness(app, siglum) == False
+
+def test_app_has_witness_empty_readings():
+    xml_str = """
+    <app>
+    </app>
+    """
+    app = ET.fromstring(xml_str)
+    siglum = "A"
+    assert app_has_witness(app, siglum) == False
+
+def test_app_has_witness_multiple_readings():
+    xml_str = """
+    <app>
+        <rdg wit="A">Text 1</rdg>
+        <rdg wit="B">Text 2</rdg>
+        <rdg wit="C">Text 3</rdg>
+    </app>
+    """
+    app = ET.fromstring(xml_str)
+    siglum = "B"
+    assert app_has_witness(app, siglum) == True
+
+def test_app_has_witness_multiple_sigla():
+    xml_str = """
+    <app>
+        <rdg wit="A B C">Text 1</rdg>
+    </app>
+    """
+    app = ET.fromstring(xml_str)
+    siglum = "B"
+    assert app_has_witness(app, siglum) == True
+
+
+def test_get_apparatus_verse_text_simple():
+    xml_str = """
+    <ab>
+        This is a sample text 
+        <app>with apparatus</app> 
+        and more text.
+    </ab>
+    """
+    parser = ET.XMLParser(remove_blank_text=True)
+    app = ET.fromstring(xml_str, parser=parser).find('.//app')
+    assert get_apparatus_verse_text(app) == "This is a sample text 〔with apparatus〕 and more text."
+
+
+def test_get_apparatus_verse_text_lem():
+    xml_str = """
+    <ab>
+        This is a sample text 
+        <app><lem>with apparatus</lem></app> 
+        and more text.
+    </ab>
+    """
+    parser = ET.XMLParser(remove_blank_text=True)
+    app = ET.fromstring(xml_str, parser=parser).find('.//app')
+    assert get_apparatus_verse_text(app) == "This is a sample text 〔with apparatus〕 and more text."
+
+
+def test_get_apparatus_verse_text_lemma_readings():
+    xml_str = """
+    <ab>
+        This is a sample text 
+        <app><lem>with apparatus</lem><rdg>with apparatus</rdg><rdg>with apparatus2</rdg></app> 
+        and more text.
+    </ab>
+    """
+    parser = ET.XMLParser(remove_blank_text=True)
+    app = ET.fromstring(xml_str, parser=parser).find('.//app')
+    assert get_apparatus_verse_text(app) == "This is a sample text 〔with apparatus〕 and more text."
+
+
+def test_get_apparatus_verse_text_readings():
+    xml_str = """
+    <ab>
+        This is a sample text 
+        <app><rdg>with apparatus</rdg><rdg>with apparatus2</rdg></app> 
+        and more text.
+    </ab>
+    """
+    parser = ET.XMLParser(remove_blank_text=True)
+    app = ET.fromstring(xml_str, parser=parser).find('.//app')
+    assert get_apparatus_verse_text(app) == "This is a sample text 〔with apparatus〕 and more text."
