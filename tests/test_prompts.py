@@ -32,7 +32,7 @@ def test_build_source_prompt():
     result = prompt.invoke(dict(doc_verse_text="اهلا، صباح الخير", doc_corresponding_text="صباح الخير", apparatus_verse_text="Hello, 〔good morning〕", readings=readings_str))
     result_str = result.to_string()
     assert "System: You are a text critic who is an expert in English and Arabic" in result_str
-    assert "AI: The English readings which could be translated into the Arabic 'صباح الخير' are:" in result_str
+    assert "AI: The English readings which plausibly could be translated into the Arabic 'صباح الخير' are:" in result_str
     
 
 def test_build_corresponding_text_prompt():
