@@ -98,24 +98,25 @@ def add(
         
         if doc_db:
             similar_verses = get_similar_verses(doc_db, verse, window=window)
-            similar_verse_examples = (
-                f"Here are {len(similar_verses)} similar texts to the one that you need to analyze. "
-                f"You will see the {doc_language} language text and then all potential {apparatus_language} source texts. "
-                f"Even though might not clear which {apparatus_language} was the actual source, consider the translation technique going from {apparatus_language} to {doc_language}.\n"
-                "See the way that the translator has translated particular words and gramatical constructions. \n\n"
-            )
-            for example_index, similar_verse in enumerate(similar_verses):
-                similar_verse_permutations = get_reading_permutations(apparatus, similar_verse)
-                similar_readings = readings_list_to_str([similar_verse_permutation.text for similar_verse_permutation in similar_verse_permutations])
-                similar_verse_examples += (
-                    f"{apparatus_language} example {example_index+1} [{similar_verse}]:\n{similar_verses[similar_verse].page_content}\n"
-                    f"Available {apparatus_language}:\n{similar_readings}\n\n"
+            if similar_verses:
+                similar_verse_examples = (
+                    f"Here are {len(similar_verses)} similar texts to the one that you need to analyze. "
+                    f"You will see the {doc_language} language text and then all potential {apparatus_language} source texts. "
+                    f"Even though might not clear which {apparatus_language} was the actual source, consider the translation technique going from {apparatus_language} to {doc_language}.\n"
+                    "See the way that the translator has translated particular words and gramatical constructions. \n\n"
                 )
+                for example_index, similar_verse in enumerate(similar_verses):
+                    similar_verse_permutations = get_reading_permutations(apparatus, similar_verse)
+                    similar_readings = readings_list_to_str([similar_verse_permutation.text for similar_verse_permutation in similar_verse_permutations])
+                    similar_verse_examples += (
+                        f"{apparatus_language} example {example_index+1} [{similar_verse}]:\n{similar_verses[similar_verse].page_content}\n"
+                        f"Available {apparatus_language}:\n{similar_readings}\n\n"
+                    )
 
-            similar_verse_examples += (
-                f"Here again is the {doc_language} text to analyze:\n '{text}'\n"
-                f"Here again is list of potential {apparatus_language} readings:\n{readings}\n"
-            )           
+                similar_verse_examples += (
+                    f"Here again is the {doc_language} text to analyze:\n '{text}'\n"
+                    f"Here again is list of potential {apparatus_language} readings:\n{readings}\n"
+                )           
         
         console.print(f"[bold]{verse}: [blue]{text}")
         results, justification = chain.invoke(dict(
@@ -197,14 +198,16 @@ def app_by_app(
 
     # for verse in track(verses):
     for verse in verses:
-        print("Processing verse", verse)
         doc_verse_text = get_verse_text(doc, verse)
+        console.print(f"Processing verse '{verse}': {doc_verse_text}")
         apparatus_verse_element = get_verse_element(apparatus, verse)
         for app in find_elements(apparatus_verse_element, ".//app"):
             if app_has_witness(app, siglum):
                 continue
 
             apparatus_verse_text = get_apparatus_verse_text(app)
+            console.print(f"Apparatus text: [blue]{apparatus_verse_text}[/blue]")
+
             readings = find_elements(app, ".//rdg")
             readings_string = readings_list_to_str([extract_text(reading) for reading in readings])
             doc_corresponding_text = corresponding_text_chain.invoke(dict(
@@ -212,15 +215,18 @@ def app_by_app(
                 readings=readings_string,
                 doc_verse_text=doc_verse_text,
             ))
-            console.print(doc_corresponding_text, style="blue")
+            console.print(f"Corresponding text: [blue]{doc_corresponding_text}[/blue]")
 
             # find similar verses
             similar_verses = set()
             if doc_db:
-                similar_verses = get_similar_verses_by_phrase(doc_db, doc_corresponding_text)
+                similar_verses.update(get_similar_verses_by_phrase(doc_db, doc_verse_text))
+                if doc_corresponding_text:
+                    similar_verses.update(get_similar_verses_by_phrase(doc_db, doc_corresponding_text))
             if apparatus_db:
                 for reading in readings:
                     similar_verses.update(get_similar_verses_by_phrase(apparatus_db, extract_text(reading)))
+            similar_verses.discard(verse)
             
             similar_verse_examples = ""
             if similar_verses:
@@ -228,23 +234,24 @@ def app_by_app(
                     f"Here are {len(similar_verses)} similar texts to the one that you need to analyze. "
                     f"You will see the {doc_language} language text and then all potential {apparatus_language} source texts. "
                     f"Even though might not clear which {apparatus_language} was the actual source, consider the translation technique going from {apparatus_language} to {doc_language}.\n"
-                    "See the way that the translator has translated particular words and gramatical constructions. \n\n"
+                    "See the way that the translator has translated particular words and gramatical constructions that are similar to the texts you need to analyze. \n\n"
                 )
-                for example_index, similar_verse in enumerate(similar_verses):
-                    example_doc_text = get_verse_text(doc_db, similar_verse)
+                for similar_verse in similar_verses:
+                    example_doc_text = get_verse_text(doc, similar_verse)
                     similar_verse_permutations = get_reading_permutations(apparatus, similar_verse, witness=siglum)
                     similar_readings = readings_list_to_str([similar_verse_permutation.text for similar_verse_permutation in similar_verse_permutations])
                     similar_verse_examples += (
-                        f"{apparatus_language} example {example_index+1} [{similar_verse}]:\n{example_doc_text}\n"
+                        f"{doc_language} example {similar_verse}:\n{example_doc_text}\n"
                         f"Possible {apparatus_language} source:\n{similar_readings}\n\n"
                     )
                 similar_verse_examples += (
-                    f"Here is the {doc_language} text to analyze:\n{doc_corresponding_text}\n[Full text in context: {doc_verse_text}]\n"
-                    f"Here is the source {apparatus_language} text to analyze with the textual variant in brackets like this: 〔 〕:\n '{apparatus_verse_text}' \n"
-                    f"Here are the potential {apparatus_language} readings that go between the brackets that could be the source of {doc_corresponding_text}:\n{readings_string}"
-                )           
+                    f"Here is the {doc_language} text to analyze:\n{doc_corresponding_text}\n[Full text in context: {doc_verse_text}]\n\n"
+                    f"Here is the source {apparatus_language} text to analyze with the textual variant in brackets like this: 〔 〕:\n{apparatus_verse_text}\n\n"
+                    f"Here are the potential {apparatus_language} readings that go between the brackets that could be the source of '{doc_corresponding_text}':\n{readings_string}"
+                )     
+
             results, justification = source_chain.invoke(dict(
-                doc_verse_text,
+                doc_verse_text=doc_verse_text,
                 doc_corresponding_text=doc_corresponding_text,
                 apparatus_verse_text=apparatus_verse_text,
                 readings=readings_string,
@@ -263,9 +270,9 @@ def app_by_app(
                             
             console.print(justification, style="blue")
 
-        # Write TEI XML output
-        print("Writing TEI XML output to", output)
-        write_tei(apparatus, output)
+            # Write TEI XML output
+            print("Writing TEI XML output to", output)
+            write_tei(apparatus, output)
 
     return apparatus
 

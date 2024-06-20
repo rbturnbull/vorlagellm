@@ -77,7 +77,7 @@ def get_verses(doc:ElementTree|Element) -> list[str]:
     return [ab.attrib['n'] for ab in ab_elements if 'n' in ab.attrib]
 
 
-def get_reading_permutations(apparatus:ElementTree|Element, verse:str) -> list[Permutation]:
+def get_reading_permutations(apparatus:ElementTree|Element, verse:str, witness:str="") -> list[Permutation]:
     verse_element = get_verse_element(apparatus, verse)
     if verse_element is None:
         return []
@@ -86,14 +86,21 @@ def get_reading_permutations(apparatus:ElementTree|Element, verse:str) -> list[P
 
     apps = []
 
+    
+
     for child in verse_element:
         tag = re.sub(r"{.*}", "", child.tag)
         if tag == "app":
+            has_witness = bool(witness) and app_has_witness(child, witness)
+
             apps.append(child)
             new_permutations = []
             # readings = find_elements(child, ".//lem") + find_elements(child, ".//rdg")
             readings = find_elements(child, ".//rdg")
             for reading in readings:
+                if has_witness and not reading_has_witness(reading, witness):
+                    continue
+
                 reading_text = extract_text(reading) or ""
                 for permutation in permutations:
                     new_permutation = Permutation(text=permutation.text + " " + reading_text, readings=permutation.readings + [reading])
@@ -113,7 +120,7 @@ def extract_text(node:Element, include_tail:bool=True) -> str:
     text = node.text or ""
     for child in node:
         tag = re.sub(r"{.*}", "", child.tag)
-        if tag == "pc":
+        if tag in ["pc", "witDetail", "note"]:
             continue
         if tag == "app":            
             lemma = find_element(child, ".//lem")
@@ -143,9 +150,12 @@ def get_verse_text(doc:ElementTree|Element, verse:str) -> str|None:
         return None
     
     return extract_text(verse_element).strip()
-    
 
-def add_witness_readings( readings:list[Element], siglum:str) -> None:
+
+def add_witness_readings( readings:Element|list[Element], siglum:str) -> None:
+    if isinstance(readings, Element):
+        readings = [readings]
+        
     for reading in readings:
         if 'wit' not in reading.attrib:
             reading.attrib['wit'] = ""
@@ -202,14 +212,14 @@ def reading_has_witness(reading:Element, siglum:str) -> bool:
 
 def add_wit_detail(apps:Element|set[Element], siglum:str, note:str="", phrase:str="", phrase_lang:str=""):
     if isinstance(apps, Element):
-        apps = set(apps)
+        apps = [apps]
     for app in apps:
         wit_detail = ET.SubElement(app, "witDetail", wit=siglum, resp="VorlageLLM")
         if phrase:
             phrase_element = ET.SubElement(wit_detail, "phr")
             phrase_element.text = phrase
             if phrase_lang:
-                phrase_element.attrib['xml:lang'] = phrase_lang
+                phrase_element.attrib['{http://www.w3.org/XML/1998/namespace}lang'] = phrase_lang
         if note:
             ET.SubElement(wit_detail, "note").text = note
 
@@ -282,6 +292,10 @@ def get_apparatus_verse_text(app:Element) -> str:
     text = text.strip()
     text += " "
     for child in parent:
+        tag = re.sub(r"{.*}", "", child.tag)
+        if tag in ["pc", "witDetail", "note"]:
+            continue
+
         if child == app:
             lemma = find_element(app, ".//lem")
             if lemma is None:
