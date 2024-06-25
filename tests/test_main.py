@@ -13,7 +13,7 @@ def my_get_llm(*args, **kwargs):
     return my_llm
 
 
-@patch('vorlagellm.llms.ChatOpenAI', my_get_llm)
+@patch('vorlagellm.main.get_llm', my_get_llm)
 def test_main_add():
     runner = CliRunner()
     with tempfile.TemporaryDirectory() as tmpdirname:

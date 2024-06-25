@@ -105,7 +105,7 @@ def build_corresponding_text_prompt(**kwargs):
             "Here is the source {apparatus_language} text to analyze with the textual variant in brackets like this: ⸂ ⸃:\n{apparatus_verse_text}\n\n"
             "Here are the potential {apparatus_language} readings that go between the brackets:\n{readings}"
         ),
-        ("ai", "The {doc_language} phrase from '{doc_verse_text}' which corresponds to the {apparatus_language} text in brackets ⸂ ⸃is:"),
+        ("ai", "The {doc_language} phrase from '{doc_verse_text}' which corresponds to the {apparatus_language} text in brackets ⸂ ⸃ is:"),
     ]
     return ChatPromptTemplate.from_messages(messages=messages).partial(**kwargs)
 

@@ -48,4 +48,4 @@ def test_build_corresponding_text_prompt():
     result_str = result.to_string()
     assert "System: You are a text critic who is an expert in English and Arabic" in result_str
     assert "Hello, ⸂good morning⸃" in result_str
-    assert "AI: The Arabic phrase which corresponds to the English text in brackets ⸂ ⸃is: " in result_str
+    assert "AI: The Arabic phrase from 'اهلا، صباح الخير' which corresponds to the English text in brackets ⸂ ⸃ is:" in result_str
