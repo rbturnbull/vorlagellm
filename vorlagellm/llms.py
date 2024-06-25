@@ -3,7 +3,7 @@
 # import transformers
 # from langchain.llms import HuggingFacePipeline
 # from langchain_experimental.chat_models import Llama2Chat
-from langchain_openai import ChatOpenAI
+
 
 
 # def hugging_face_pipeline(hf_auth:str="", model_id='meta-llama/Llama-2-13b-chat-hf', **kwargs):
@@ -157,12 +157,26 @@ from langchain_openai import ChatOpenAI
 
 
 def get_llm(
+    model_id,
     hf_auth:str="",
     openai_api_key:str="",
-    model_id:str='meta-llama/Llama-2-13b-chat-hf',        
+    
 ):
     # if model_id.startswith('meta-llama'):
     #     llm = hugging_face_llm(hf_auth, model_id=model_id)
     #     return MyLlama2Chat(llm=llm)
 
-    return ChatOpenAI(openai_api_key=openai_api_key, model_name=model_id)
+    if model_id.startswith('gpt'):
+        from langchain_openai import ChatOpenAI
+        return ChatOpenAI(openai_api_key=openai_api_key, model_name=model_id)
+    
+    if model_id.startswith('claude'):
+        from langchain_anthropic import ChatAnthropic
+        return ChatAnthropic(
+            model=model_id,
+            temperature=0,
+            max_tokens=1024,
+            timeout=None,
+            max_retries=2,
+        )
+    raise ValueError(f"Model {model_id} not recognized.")

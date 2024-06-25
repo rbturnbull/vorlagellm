@@ -246,7 +246,7 @@ def app_by_app(
                     )
                 similar_verse_examples += (
                     f"Here is the {doc_language} text to analyze:\n{doc_corresponding_text}\n[Full text in context: {doc_verse_text}]\n\n"
-                    f"Here is the source {apparatus_language} text to analyze with the textual variant in brackets like this: 〔 〕:\n{apparatus_verse_text}\n\n"
+                    f"Here is the source {apparatus_language} text to analyze with the textual variant in brackets like this: ⸂ ⸃:\n{apparatus_verse_text}\n\n"
                     f"Here are the potential {apparatus_language} readings that go between the brackets that could be the source of '{doc_corresponding_text}':\n{readings_string}"
                 )     
 
@@ -317,11 +317,17 @@ def evaluate(
     tp = sum(reading_has_witness(reading, gold_siglum) and reading_has_witness(reading, prediction_siglum) for reading in readings)
     fp = sum(reading_has_witness(reading, prediction_siglum) and not reading_has_witness(reading, gold_siglum) for reading in readings)
     fn = sum(reading_has_witness(reading, gold_siglum) and not reading_has_witness(reading, prediction_siglum) for reading in readings)
+    tn = sum(not reading_has_witness(reading, gold_siglum) and not reading_has_witness(reading, prediction_siglum) for reading in readings)
     recall = tp / (tp + fn)
     precision = tp / (tp + fp)
     f1 = 2 * (precision * recall) / (precision + recall)
     console.print(f"Recall: {recall:.1%}")
     console.print(f"Precision: {precision:.1%}")
+    console.print(f"False Positives: {fp}")
+    console.print(f"False Negatives: {fn}")
+    console.print(f"True Positives: {tp}")
+    console.print(f"True Negatives: {tn}")
+
     console.print(f"F1: {f1:.1%}")
 
     if false_positives:

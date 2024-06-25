@@ -155,7 +155,7 @@ def get_verse_text(doc:ElementTree|Element, verse:str) -> str|None:
 def add_witness_readings( readings:Element|list[Element], siglum:str) -> None:
     if isinstance(readings, Element):
         readings = [readings]
-        
+
     for reading in readings:
         if 'wit' not in reading.attrib:
             reading.attrib['wit'] = ""
@@ -304,7 +304,7 @@ def get_apparatus_verse_text(app:Element) -> str:
                 lemma = app
             app_text = extract_text(lemma, include_tail=False) or ""
             app_text = app_text.strip()
-            text += f"〔{app_text}〕"
+            text += f"⸂{app_text}⸃"
             if app.tail:
                 text += " " + app.tail.strip()
         else:

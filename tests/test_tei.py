@@ -325,7 +325,7 @@ def test_get_apparatus_verse_text_simple():
     """
     parser = ET.XMLParser(remove_blank_text=True)
     app = ET.fromstring(xml_str, parser=parser).find('.//app')
-    assert get_apparatus_verse_text(app) == "This is a sample text 〔with apparatus〕 and more text."
+    assert get_apparatus_verse_text(app) == "This is a sample text ⸂with apparatus⸃ and more text."
 
 
 def test_get_apparatus_verse_text_lem():
@@ -338,7 +338,7 @@ def test_get_apparatus_verse_text_lem():
     """
     parser = ET.XMLParser(remove_blank_text=True)
     app = ET.fromstring(xml_str, parser=parser).find('.//app')
-    assert get_apparatus_verse_text(app) == "This is a sample text 〔with apparatus〕 and more text."
+    assert get_apparatus_verse_text(app) == "This is a sample text ⸂with apparatus⸃ and more text."
 
 
 def test_get_apparatus_verse_text_lemma_readings():
@@ -351,7 +351,7 @@ def test_get_apparatus_verse_text_lemma_readings():
     """
     parser = ET.XMLParser(remove_blank_text=True)
     app = ET.fromstring(xml_str, parser=parser).find('.//app')
-    assert get_apparatus_verse_text(app) == "This is a sample text 〔with apparatus〕 and more text."
+    assert get_apparatus_verse_text(app) == "This is a sample text ⸂with apparatus⸃ and more text."
 
 
 def test_get_apparatus_verse_text_readings():
@@ -364,4 +364,4 @@ def test_get_apparatus_verse_text_readings():
     """
     parser = ET.XMLParser(remove_blank_text=True)
     app = ET.fromstring(xml_str, parser=parser).find('.//app')
-    assert get_apparatus_verse_text(app) == "This is a sample text 〔with apparatus〕 and more text."
+    assert get_apparatus_verse_text(app) == "This is a sample text ⸂with apparatus⸃ and more text."
