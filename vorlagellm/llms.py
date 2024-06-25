@@ -14,6 +14,10 @@ from langchain.schema import (
     LLMResult,
     SystemMessage,
 )
+from langchain_core.callbacks.manager import (
+    AsyncCallbackManagerForLLMRun,
+    CallbackManagerForLLMRun,
+)
 from langchain_core.language_models import BaseChatModel
 
 def hugging_face_pipeline(hf_auth:str="", model_id='meta-llama/Llama-2-13b-chat-hf', **kwargs):
@@ -78,6 +82,19 @@ class Llama3Chat(BaseChatModel):
     # llm # Force type of LLM to be the HuggingFacePipeline otherwise it won't instantiate
     def __init__(self, llm):
         self.llm = llm
+
+    def _generate(
+        self,
+        messages: list[BaseMessage],
+        stop: list[str]|None = None,
+        run_manager: CallbackManagerForLLMRun|None = None,
+        **kwargs,
+    ) -> ChatResult:
+        llm_input = self._to_chat_prompt(messages)
+        llm_result = self.llm._generate(
+            prompts=[llm_input], stop=stop, run_manager=run_manager, **kwargs
+        )
+        return self._to_chat_result(llm_result)
 
     @staticmethod
     def _to_chat_result(llm_result: LLMResult) -> ChatResult:
