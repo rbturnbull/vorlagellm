@@ -1,4 +1,5 @@
 import os
+from langchain_community.llms import HuggingFacePipeline
 from langchain.schema import (
     AIMessage,
     BaseMessage,
@@ -14,13 +15,15 @@ from langchain.schema import (
     LLMResult,
     SystemMessage,
 )
+from langchain_core.outputs import Generation, LLMResult
+from transformers.pipelines.text_generation import TextGenerationPipeline
 from langchain_core.callbacks.manager import (
     AsyncCallbackManagerForLLMRun,
     CallbackManagerForLLMRun,
 )
 from langchain_core.language_models import BaseChatModel
 
-def hugging_face_pipeline(hf_auth:str="", model_id='meta-llama/Llama-2-13b-chat-hf', **kwargs):
+def hugging_face_pipeline(hf_auth:str="", model_id='meta-llama/Meta-Llama-3-8B-Instruct', **kwargs):
     import torch
     import transformers
     """ Adapted from https://www.pinecone.io/learn/llama-2/ """
@@ -72,16 +75,78 @@ def hugging_face_pipeline(hf_auth:str="", model_id='meta-llama/Llama-2-13b-chat-
     return generate_text
 
 
-def hugging_face_llm(hf_auth:str="", **kwargs) -> "HuggingFacePipeline":
-    from langchain.llms import HuggingFacePipeline
+def hugging_face_llm(hf_auth:str="", **kwargs) -> HuggingFacePipeline:
     llm = HuggingFacePipeline(pipeline=hugging_face_pipeline(hf_auth, **kwargs))
     return llm
 
 
-class Llama3Chat(BaseChatModel):
-    # llm # Force type of LLM to be the HuggingFacePipeline otherwise it won't instantiate
-    def __init__(self, llm):
-        self.llm = llm
+# def hugging_face_pipeline(model_id="", hf_auth:str="", **kwargs) -> TextGenerationPipeline:
+#     import transformers
+#     import torch
+
+#     if not hf_auth:
+#         hf_auth = os.getenv('HF_AUTH')
+
+#     pipeline = transformers.pipeline(
+#         "text-generation",
+#         model=model_id,
+#         model_kwargs={"torch_dtype": torch.bfloat16},
+#         device_map="auto",
+#         token=hf_auth,
+#         repetition_penalty=1.1  # without this output begins repeating
+#     )
+#     return pipeline
+#     breakpoint()
+
+#     llm = HuggingFacePipeline(pipeline=pipeline)
+#     return llm
+
+from langchain_core.language_models.llms import LLM
+class ChatLlama3(BaseChatModel):
+    llm:HuggingFacePipeline
+
+    @property
+    def _llm_type(self) -> str:
+        """Get the type of language model used by this chat model. Used for logging purposes only."""
+        return "ChatLlama3"
+    
+    # def _call(
+    #     self,
+    #     messages: list[BaseMessage],
+    #     stop: list[str]|None = None,
+    #     run_manager: CallbackManagerForLLMRun|None = None,
+    #     **kwargs,
+    # ) -> str:
+    #     llama_messages = []
+    #     breakpoint()
+
+    #     for message in messages:
+    #         role = ""
+    #         if isinstance(message, SystemMessage):
+    #             role = "system"
+    #         elif isinstance(message, HumanMessage):
+    #             role = "user"
+    #         elif isinstance(message, AIMessage):
+    #             role = "assistant"
+    #         else:
+    #             breakpoint()
+    #         llama_messages.append(dict(role=role, content=message.content))
+
+    #     terminators = [
+    #         self.llm.pipeline.tokenizer.eos_token_id,
+    #         self.llm.pipeline.tokenizer.convert_tokens_to_ids("<|eot_id|>")
+    #     ]
+
+    #     outputs = self.llm.pipeline(
+    #         llama_messages,
+    #         max_new_tokens=512,
+    #         eos_token_id=terminators,
+    #         do_sample=True,
+    #         temperature=0.1,
+    #         top_p=0.2,
+    #     )
+    #     llm_result = outputs[0]["generated_text"][-1]
+    #     return llm_result
 
     def _generate(
         self,
@@ -90,63 +155,43 @@ class Llama3Chat(BaseChatModel):
         run_manager: CallbackManagerForLLMRun|None = None,
         **kwargs,
     ) -> ChatResult:
-        llm_input = self._to_chat_prompt(messages)
-        llm_result = self.llm._generate(
-            prompts=[llm_input], stop=stop, run_manager=run_manager, **kwargs
-        )
-        return self._to_chat_result(llm_result)
-
-    @staticmethod
-    def _to_chat_result(llm_result: LLMResult) -> ChatResult:
-        chat_generations = []
-
-        for g in llm_result.generations[0]:
-            chat_generation = ChatGeneration(
-                message=AIMessage(content=g.text), generation_info=g.generation_info
-            )
-            chat_generations.append(chat_generation)
-
-        return ChatResult(
-            generations=chat_generations, llm_output=llm_result.llm_output
-        )
-
-    def _to_chat_prompt(
-        self,
-        messages: list[BaseMessage],
-    ) -> str:
-        """
-        Convert a list of messages into a prompt format expected by wrapped LLM.
-
-        Format https://llama.meta.com/docs/model-cards-and-prompt-formats/meta-llama-3/:
-        <|begin_of_text|><|start_header_id|>system<|end_header_id|>
-
-        You are a helpful AI assistant for travel tips and recommendations<|eot_id|><|start_header_id|>user<|end_header_id|>
-
-        What can you help me with?<|eot_id|><|start_header_id|>assistant<|end_header_id|>
-        """
-        if not messages:
-            raise ValueError("at least one HumanMessage must be provided")
-
-        prompt = "<|begin_of_text|>"
-        current_role = None
-
-        def _add_message(message: BaseMessage, role:str):
-            if current_role != role:
-                if current_role:
-                    prompt += "<|eot_id|>"
-                prompt += f"<|start_header_id|>{role}<|end_header_id|>"
-                current_role = role
-            prompt += message.content            
+        llama_messages = []
 
         for message in messages:
             if isinstance(message, SystemMessage):
-                _add_message(message, "system")
+                role = "system"
             elif isinstance(message, HumanMessage):
-                _add_message(message, "user")
+                role = "user"
             elif isinstance(message, AIMessage):
-                _add_message(message, "assistant")
+                role = "assistant"
+            else:
+                role = ""
+            llama_messages.append(dict(role=role, content=message.content))
 
-        return prompt
+        terminators = [
+            self.llm.pipeline.tokenizer.eos_token_id,
+            self.llm.pipeline.tokenizer.convert_tokens_to_ids("<|eot_id|>")
+        ]
+
+        outputs = self.llm.pipeline(
+            llama_messages,
+            max_new_tokens=512,
+            eos_token_id=terminators,
+            do_sample=True,
+            temperature=0.1,
+            top_p=0.2,
+        )
+        result = outputs[0]["generated_text"][-1]
+        chat_generations = []
+
+        chat_generation = ChatGeneration(
+            message=AIMessage(content=result['content'])#, generation_info=g.generation_info
+        )
+        chat_generations.append(chat_generation)
+
+        return ChatResult(
+            generations=chat_generations, #llm_output=result['content']
+        )    
 
 
 def get_llm(
@@ -157,7 +202,7 @@ def get_llm(
 ):
     if model_id.startswith('meta-llama/Meta-Llama-3'):
         llm = hugging_face_llm(hf_auth, model_id=model_id)
-        return Llama3Chat(llm=llm)
+        return ChatLlama3(llm=llm)
 
     if model_id.startswith('gpt'):
         from langchain_openai import ChatOpenAI
