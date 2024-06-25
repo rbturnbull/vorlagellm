@@ -77,7 +77,7 @@ def get_verses(doc:ElementTree|Element) -> list[str]:
     return [ab.attrib['n'] for ab in ab_elements if 'n' in ab.attrib]
 
 
-def get_reading_permutations(apparatus:ElementTree|Element, verse:str, witness:str="") -> list[Permutation]:
+def get_reading_permutations(apparatus:ElementTree|Element, verse:str, witness:str="", bracket_app:Element|None=None) -> list[Permutation]:
     verse_element = get_verse_element(apparatus, verse)
     if verse_element is None:
         return []
@@ -85,8 +85,6 @@ def get_reading_permutations(apparatus:ElementTree|Element, verse:str, witness:s
     permutations = [Permutation(text="", readings=[])]
 
     apps = []
-
-    
 
     for child in verse_element:
         tag = re.sub(r"{.*}", "", child.tag)
@@ -102,6 +100,9 @@ def get_reading_permutations(apparatus:ElementTree|Element, verse:str, witness:s
                     continue
 
                 reading_text = extract_text(reading) or ""
+                if bracket_app is not None and bracket_app == child:
+                    reading_text = f"⸂{reading_text}⸃"
+
                 for permutation in permutations:
                     new_permutation = Permutation(text=permutation.text + " " + reading_text, readings=permutation.readings + [reading])
                     new_permutations.append(new_permutation)
@@ -286,7 +287,7 @@ def write_elements(elements:list[Element], output_file:Path, root_tag:str="body"
     write_tei(tree, output_file)
 
 
-def get_apparatus_verse_text(app:Element) -> str:
+def get_apparatus_verse_text(app:Element, witness:str="") -> str:
     parent = find_parent(app, 'ab')
     text = parent.text or ""
     text = text.strip()
@@ -296,15 +297,23 @@ def get_apparatus_verse_text(app:Element) -> str:
         if tag in ["pc", "witDetail", "note"]:
             continue
 
-        if child == app:
-            lemma = find_element(app, ".//lem")
-            if lemma is None:
-                lemma = find_element(child, ".//rdg")
-            if lemma is None:
-                lemma = app
+        if tag == "app":
+            if witness and app_has_witness(child, witness):
+                for reading in find_elements(child, ".//rdg"):
+                    if reading_has_witness(reading, witness):
+                        lemma = reading
+                        break
+            else:
+                lemma = find_element(child, ".//lem")
+                if lemma is None:
+                    lemma = find_element(child, ".//rdg")
+                if lemma is None:
+                    lemma = app
             app_text = extract_text(lemma, include_tail=False) or ""
             app_text = app_text.strip()
-            text += f"⸂{app_text}⸃"
+            if child == app:
+                app_text = f"⸂{app_text}⸃"
+            text += app_text
             if app.tail:
                 text += " " + app.tail.strip()
         else:

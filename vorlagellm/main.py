@@ -184,7 +184,7 @@ def app_by_app(
     if doc_db:
         embeddings_model = OpenAIEmbeddings(model=DEFAULT_EMBEDDING_MODEL_ID)
         doc_db = get_teidoc_db(doc, model=embeddings_model, path=doc_db)
-            
+    
     if apparatus_db:
         apparatus_db = get_apparatus_db(apparatus, model=embeddings_model, path=apparatus_db)
 
@@ -206,14 +206,18 @@ def app_by_app(
                 continue
 
             apparatus_verse_text = get_apparatus_verse_text(app)
+
             console.print(f"Apparatus text: [blue]{apparatus_verse_text}[/blue]")
 
             readings = find_elements(app, ".//rdg")
+            reading_texts = [extract_text(reading) for reading in readings]
+            reading_list = ", ".join([("⸂" + reading + "⸃") if reading else "⸂OMISSION⸃" for reading in reading_texts])
             readings_string = readings_list_to_str([extract_text(reading) for reading in readings])
+            permutations = "\n".join([permutation.text for permutation in get_reading_permutations(apparatus, verse, witness=siglum, bracket_app=app)])
             doc_corresponding_text = corresponding_text_chain.invoke(dict(
-                apparatus_verse_text=apparatus_verse_text,
-                readings=readings_string,
                 doc_verse_text=doc_verse_text,
+                permutations=permutations,
+                reading_list=reading_list
             ))
             console.print(f"Corresponding text: [blue]{doc_corresponding_text}[/blue]")
 

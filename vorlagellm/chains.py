@@ -40,7 +40,9 @@ def print_prompt(prompt):
     return prompt
 
 
-def build_corresponding_text_chain(llm, doc_language: str, apparatus_language: str):
+def build_corresponding_text_chain(llm, doc_language: str, apparatus_language: str, verbose:bool=False):
     prompt = build_corresponding_text_prompt(doc_language=doc_language, apparatus_language=apparatus_language)
+    if verbose:
+        prompt = prompt | print_prompt
 
     return prompt | llm.bind(stop=["----"]) | StrOutputParser() | strip_hyphens
