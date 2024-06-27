@@ -326,3 +326,20 @@ def get_apparatus_verse_text(app:Element, witness:str="") -> str:
     text += parent.tail or ""
     text = re.sub(r"\s+", " ", text.strip())
     return text    
+
+
+def readings_for_witness(app:Element, siglum:str) -> set[Element]:
+    """
+    Collects readings associated with a specific witness from an XML apparatus entry.
+
+    Args:
+        app (Element): The XML element representing the apparatus entry.
+        siglum (str): The siglum of the witness to filter readings by.
+
+    Returns:
+        set[Element]: A set of reading elements that include the specified witness.
+    """
+    readings = find_elements(app, ".//rdg")
+    return set(reading for reading in readings if reading_has_witness(reading, siglum))
+
+

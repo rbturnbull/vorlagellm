@@ -17,6 +17,7 @@ from vorlagellm.tei import (
     app_has_witness,
     write_elements,
     get_apparatus_verse_text,
+    readings_for_witness,
 )
 from pathlib import Path
 from lxml import etree as ET
@@ -365,3 +366,46 @@ def test_get_apparatus_verse_text_readings():
     parser = ET.XMLParser(remove_blank_text=True)
     app = ET.fromstring(xml_str, parser=parser).find('.//app')
     assert get_apparatus_verse_text(app) == "This is a sample text ⸂with apparatus⸃ and more text."
+
+
+def test_readings_for_witness_single_witness():
+    xml_data = '''<app>
+        <rdg wit="SIGLUM1">Text 1</rdg>
+        <rdg wit="SIGLUM2">Text 2</rdg>
+    </app>'''
+    root = ET.fromstring(xml_data)
+    result = readings_for_witness(root, 'SIGLUM1')
+    assert len(result) == 1
+    assert next(iter(result)).text == 'Text 1'
+
+def test_readings_for_witness_multiple_witnesses():
+    xml_data = '''<app>
+        <rdg wit="SIGLUM1 SIGLUM2">Text 1</rdg>
+        <rdg wit="SIGLUM3">Text 2</rdg>
+        <rdg wit="SIGLUM1 SIGLUM3">Text 3</rdg>
+    </app>'''
+    root = ET.fromstring(xml_data)
+    result = readings_for_witness(root, 'SIGLUM1')
+    assert len(result) == 2
+    texts = [reading.text for reading in result]
+    assert 'Text 1' in texts
+    assert 'Text 3' in texts
+
+def test_readings_for_witness_no_match():
+    xml_data = '''<app>
+        <rdg wit="SIGLUM2">Text 1</rdg>
+        <rdg wit="SIGLUM3">Text 2</rdg>
+    </app>'''
+    root = ET.fromstring(xml_data)
+    result = readings_for_witness(root, 'SIGLUM1')
+    assert len(result) == 0
+
+def test_readings_for_witness_empty_wit():
+    xml_data = '''<app>
+        <rdg wit="">Text 1</rdg>
+        <rdg wit="SIGLUM1">Text 2</rdg>
+    </app>'''
+    root = ET.fromstring(xml_data)
+    result = readings_for_witness(root, 'SIGLUM1')
+    assert len(result) == 1
+    assert next(iter(result)).text == 'Text 2'
