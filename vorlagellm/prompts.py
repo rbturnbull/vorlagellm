@@ -97,7 +97,8 @@ def build_corresponding_text_prompt(**kwargs):
             "You are to print the {doc_language} text which best corresponds to the {apparatus_language} text in brackets ⸂ ⸃ with whatever reading was likely to be the original source. "
             "Only print the {doc_language} text which correspond to the {apparatus_language} text in brackets ⸂ ⸃. "
             "If the {doc_language} text agrees an omission in {apparatus_language}, then just then print 'OMISSION'. "
-            "After you print the text, print 5 hyphens '-----' and stop. "
+            "Print the {doc_language} text on a single line without line breaks. When finished the {doc_language} text, print a new line and then 5 hyphens '-----' and stop. "
+            "Do not give any other information in your response.\n\n"
 
             "For example, if the source Greek readings were ⸂πᾶσι⸃ and ⸂δαῖτα⸃ in the following contexts:\n"
             "ἡρώων, αὐτοὺς δὲ ἑλώρια τεῦχε κύνεσσιν οἰωνοῖσί τε ⸂πᾶσι⸃, Διὸς δ᾽ ἐτελείετο βουλή,\n"
@@ -113,7 +114,6 @@ def build_corresponding_text_prompt(**kwargs):
             "And if the German translated text was 'Es war die beste aller Zeiten,'\n"
             "Then you would reply with the text: 'OMISSION'\n\n"
             
-            "Do not give any other information in your response. Later you will be asked to justify your decision. "
 
             "Here is the {doc_language} text to analyze:\n{doc_verse_text}\n\n"
             "Here are the possible readings at the variation unit: {reading_list}\n\n"
