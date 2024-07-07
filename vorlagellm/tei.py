@@ -170,6 +170,19 @@ def add_witness_readings( readings:Element|list[Element], siglum:str) -> None:
         reading.attrib['wit'] = reading.attrib['wit'].strip()
 
 
+def remove_witnesss_readings(reading:Element, siglum:str) -> None:
+    if isinstance(readings, Element):
+        readings = [readings]
+
+    for reading in readings:
+        if not reading_has_witness(reading, siglum):
+            continue
+
+        witnesses = reading.attrib['wit'].split()
+        witnesses = [witness for witness in witnesses if witness != siglum and witness != f"#{siglum}"]
+        reading.attrib['wit'] = " ".join(witnesses)
+
+
 def write_tei(doc:ElementTree, path:Path|str) -> None:
     doc.write(str(path), encoding="utf-8", xml_declaration=True, pretty_print=True)
 
