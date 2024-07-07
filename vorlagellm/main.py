@@ -9,6 +9,7 @@ from .llms import get_llm
 from .chains import build_chain, build_corresponding_text_chain, build_source_chain
 from .prompts import readings_list_to_str
 from .rag import get_apparatus_db, get_teidoc_db, get_db, get_similar_verses, get_similar_verses_by_phrase
+from .agreements import count_witness_agreements, WitnessComparison
 from vorlagellm.tei import (
     read_tei,
     get_siglum,
@@ -325,8 +326,12 @@ def evaluate(
     recall = tp / (tp + fn)
     precision = tp / (tp + fp)
     f1 = 2 * (precision * recall) / (precision + recall)
+    fpr = fp / (fp + tn)
+    fnr = fn / (fn + tp)
     console.print(f"Recall: {recall:.1%}")
     console.print(f"Precision: {precision:.1%}")
+    console.print(f"False Negative Rate: {fnr:.1%}")
+    console.print(f"False Positive Rate: {fpr:.1%}")
     console.print(f"False Positives: {fp}")
     console.print(f"False Negatives: {fn}")
     console.print(f"True Positives: {tp}")
@@ -345,3 +350,30 @@ def evaluate(
         abs = set(find_parent(reading, "ab") for reading in fn_readings)
         console.print(f"Writing {len(fn_readings)} false negatives to {false_negatives}")
         write_elements(abs, false_negatives, "listApp", type="false-negatives")
+
+
+@app.command()
+def agreements(
+    apparatus:Path,
+    siglum1:str,
+    siglum2:str,
+    horizontal:bool=False,
+):
+    apparatus = read_tei(apparatus)
+    counter = count_witness_agreements(apparatus, siglum1, siglum2)
+
+    # breakpoint()
+    # results = [
+    #     counter[WitnessComparison.UNAMBIGUOUS_AGREEMENT],
+    #     counter[WitnessComparison.AMBIGUOUS_AGREEMENT],
+    #     counter[WitnessComparison.UNAMBIGUOUS_DISAGREEMENT],
+    #     counter[WitnessComparison.MISSING],
+    # ]
+    if horizontal:
+        print("siglum1", "siglum2", "\t".join([category.plural for category in WitnessComparison]), sep="\t")
+        print(siglum1, siglum2, "\t".join([str(counter[category]) for category in WitnessComparison]), sep="\t")
+    else:
+        print("siglum1", siglum1, sep="\t")        
+        print("siglum2", siglum2, sep="\t")        
+        for category in WitnessComparison:
+            print(category.plural, counter[category], sep="\t")
