@@ -11,6 +11,11 @@ class WitnessComparison(Enum):
     AMBIGUOUS_AGREEMENT = 2
     UNAMBIGUOUS_AGREEMENT = 3
 
+    @property
+    def plural(self) -> str:
+        if self == WitnessComparison.MISSING:
+            return self.name.title()
+        return f"{self.name.title()}s"
 
 
 def get_app_witness_agreements(app:Element, siglum1:str, siglum2:str) -> WitnessComparison:
@@ -33,7 +38,7 @@ def get_app_witness_agreements(app:Element, siglum1:str, siglum2:str) -> Witness
 
 
 
-def get_all_witness_agreements(apparatus:ElementTree|Element, siglum1:str, siglum2:str) -> Counter[WitnessComparison]:
+def count_witness_agreements(apparatus:ElementTree|Element, siglum1:str, siglum2:str) -> Counter[WitnessComparison]:
     """Aggregates the types of witness agreements across multiple apparatus entries in an XML document.
 
     Args:

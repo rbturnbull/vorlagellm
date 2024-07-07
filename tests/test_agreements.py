@@ -1,6 +1,6 @@
 from lxml import etree as ET
 from collections import Counter
-from vorlagellm.comparison import WitnessComparison, get_app_witness_agreements, get_all_witness_agreements
+from vorlagellm.agreements import WitnessComparison, get_app_witness_agreements, count_witness_agreements
 
 def test_witness_missing():
     xml_data = '''<app>
@@ -60,7 +60,7 @@ def test_all_witness_agreements():
         </app>
     </root>'''
     root = ET.fromstring(xml_data)
-    result = get_all_witness_agreements(root, 'SIGLUM1', 'SIGLUM2')
+    result = count_witness_agreements(root, 'SIGLUM1', 'SIGLUM2')
     expected = Counter({
         WitnessComparison.UNAMBIGUOUS_DISAGREEMENT: 1,
         WitnessComparison.UNAMBIGUOUS_AGREEMENT: 1,
