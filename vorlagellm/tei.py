@@ -418,7 +418,7 @@ def add_responsibility_statement(doc:ElementTree, siglum:str, model_id:str) -> t
     counter = 1
     while find_element(title_statement, f".//respStmt[@{{http://www.w3.org/XML/1998/namespace}}id='{xml_id}']") is not None:
         counter += 1
-        xml_id = "VorlageLLM-{counter}"
+        xml_id = f"VorlageLLM-{counter}"
 
     responsibility_statement = ET.SubElement(title_statement, "respStmt", )
     responsibility_statement.attrib['{http://www.w3.org/XML/1998/namespace}id'] = xml_id
