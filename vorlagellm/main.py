@@ -70,7 +70,7 @@ def run(
     witness_element = add_siglum(apparatus, siglum)
 
     # Add responsibility statement
-    add_responsibility_statement(apparatus, siglum, model_id)
+    _, resp_id = add_responsibility_statement(apparatus, siglum, model_id)
 
     # Add metadata to apparatus
     add_doc_metadata(witness_element, doc)

@@ -38,6 +38,9 @@ def do_ensemble(apparatuses:list[ElementTree], witness:str) -> ElementTree:
             remove_witnesss_readings(reading, witness)
         
     # TODO Get justifications
+    # apparatus_readings_list = [find_elements(apparatus, ".//rdg") for apparatus in apparatuses]
+
+    
     # TODO add to header
 
     return apparatuses[0]

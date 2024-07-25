@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "VorlageLLM"
-version = "0.1.0"
+name = "vorlagellm"
+version = "0.1.1"
 description = "Uses an LLM to determine which were plausible readings in the Vorlage of a translation of a text."
 authors = ["Robert Turnbull <robert.turnbull@unimelb.edu.au>"]
 license = "Apache-2.0"

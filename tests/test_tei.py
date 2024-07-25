@@ -479,14 +479,14 @@ def test_add_responsibility_statement_valid():
     # Call the function
     siglum = "A"
     model_id = "model_123"
-    result = add_responsibility_statement(doc, siglum, model_id)
+    result, _ = add_responsibility_statement(doc, siglum, model_id)
 
     # Verify the result
     assert result.tag == "respStmt"
     resp = result.find("resp")
     assert resp is not None
     assert "when" in resp.attrib
-    assert resp.text == f"Witness '{siglum}' using VorlageLLM using LLM '{model_id}'"
+    assert resp.text == f"Witness '{siglum}' added using VorlageLLM using LLM '{model_id}'"
 
 def test_add_responsibility_statement_no_title_stmt():
     # Create a sample XML document without titleStmt
@@ -501,8 +501,8 @@ def test_add_responsibility_statement_no_title_stmt():
 
 def test_add_responsibility_statement_test_doc():
     doc = read_tei(TEST_DOC)
-    result = add_responsibility_statement(doc, "A", "model_123")
+    result, _ = add_responsibility_statement(doc, "A", "model_123")
     assert len(result) == 1
     assert result[0].tag == "resp"
-    assert "Witness 'A' using VorlageLLM using LLM 'model_123'" == result[0].text
+    assert "Witness 'A' added using VorlageLLM using LLM 'model_123'" == result[0].text
 

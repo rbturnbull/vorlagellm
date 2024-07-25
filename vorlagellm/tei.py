@@ -385,7 +385,7 @@ def add_doc_metadata(witness_element:Element, doc:ElementTree) -> Element:
     return bibl_full
 
 
-def add_responsibility_statement(doc:ElementTree, siglum:str, model_id:str) -> Element:
+def add_responsibility_statement(doc:ElementTree, siglum:str, model_id:str) -> tuple[Element,str]:
     """
     Adds a responsibility statement to the XML document.
 
@@ -395,10 +395,8 @@ def add_responsibility_statement(doc:ElementTree, siglum:str, model_id:str) -> E
         model_id (str): The ID of the LLM model used.
 
     Returns:
-        Element: The created responsibility statement element.
-
-    Raises:
-        ValueError: If the <titleStmt> element is not found in the document.
+        Element: The responsibility statement element that was added to the document.
+        str: The unique ID of the responsibility statement.
     """
     if isinstance(doc, ElementTree):
         doc = doc.getroot()
@@ -415,13 +413,21 @@ def add_responsibility_statement(doc:ElementTree, siglum:str, model_id:str) -> E
     if title_statement is None:
         title_statement = ET.SubElement(file_description, "titleStmt")
 
-    responsibility_statement = ET.SubElement(title_statement, "respStmt")
-    
+    # Get unique ID
+    xml_id = "VorlageLLM"
+    counter = 1
+    while find_element(title_statement, f".//respStmt[@{{http://www.w3.org/XML/1998/namespace}}id='{xml_id}']") is not None:
+        counter += 1
+        xml_id = "VorlageLLM-{counter}"
+
+    responsibility_statement = ET.SubElement(title_statement, "respStmt", )
+    responsibility_statement.attrib['{http://www.w3.org/XML/1998/namespace}id'] = xml_id
+
     # Get datetime in required format
     current_time = datetime.now()
     formatted_time = current_time.strftime('%Y-%m-%dT%H:%M:%S')
     
     resp = ET.SubElement(responsibility_statement, "resp", when=formatted_time, resp="VorlageLLM")
-    resp.text = f"Witness '{siglum}' using VorlageLLM using LLM '{model_id}'"
+    resp.text = f"Witness '{siglum}' added using VorlageLLM using LLM '{model_id}'"
 
-    return responsibility_statement
+    return responsibility_statement, xml_id

@@ -31,6 +31,12 @@ Install using pip:
 
 .. code-block:: bash
 
+    pip install vorlagellm
+
+To install the latest version from the repository:
+
+.. code-block:: bash
+
     pip install git+https://github.com/rbturnbull/vorlagellm.git
 
 
@@ -42,6 +48,8 @@ See the options with the command:
 .. code-block:: bash
 
     vorlagellm --help
+
+More information in the docs at https://rbturnbull.github.io/vorlagellm/
 
 .. end-quickstart
 
