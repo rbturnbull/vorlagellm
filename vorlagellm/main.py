@@ -31,6 +31,7 @@ from vorlagellm.tei import (
     find_parent,
     app_has_witness,
 )
+from .ensemble import do_ensemble
 
 console = Console()
 
@@ -377,3 +378,11 @@ def agreements(
         print("siglum2", siglum2, sep="\t")        
         for category in WitnessComparison:
             print(category.plural, counter[category], sep="\t")
+
+
+@app.command()
+def ensemble(siglum:str, output:Path, apparatuses:list[Path]):
+    apparatuses = [read_tei(apparatus) for apparatus in apparatuses]
+    result = do_ensemble(apparatuses, siglum)
+    print(f"Writing ensemble to {output}")
+    write_tei(result, output)

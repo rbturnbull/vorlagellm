@@ -14,7 +14,7 @@ def do_ensemble(apparatuses:list[ElementTree], witness:str) -> ElementTree:
         else:
             assert apparatus_readings_count == len(apparatus_readings)
 
-    for readings in zip(apparatus_readings_list):
+    for readings in zip(*apparatus_readings_list):
         readings_with_witness = 0
         # Make sure that each reading is the same
         readings_text = None
@@ -24,7 +24,7 @@ def do_ensemble(apparatuses:list[ElementTree], witness:str) -> ElementTree:
             else:
                 assert readings_text == extract_text(reading)
 
-            readings_with_witness = int(reading_has_witness(reading, witness))
+            readings_with_witness += int(reading_has_witness(reading, witness))
         
         majority_has_witness = (2 * readings_with_witness >= len(apparatuses))
 
