@@ -43,6 +43,8 @@ See the options with the command:
 
     vorlagellm --help
 
+.. end-quickstart
+
 
 Credits
 ==================================

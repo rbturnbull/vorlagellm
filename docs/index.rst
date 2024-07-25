@@ -17,7 +17,7 @@ Uses an LLM to determine which were plausible readings in the Vorlage of a trans
    :caption: Contents:
 
    quickstart
-   api
+   pipeline
    cli
    credits
 
