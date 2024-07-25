@@ -227,11 +227,11 @@ def reading_has_witness(reading:Element, siglum:str) -> bool:
     return (siglum in witnesses or f"#{siglum}" in witnesses)
     
 
-def add_wit_detail(apps:Element|set[Element], siglum:str, note:str="", phrase:str="", phrase_lang:str=""):
+def add_wit_detail(apps:Element|set[Element], siglum:str, note:str="", phrase:str="", phrase_lang:str="", resp_id:str="VorlageLLM") -> None:
     if isinstance(apps, Element):
         apps = [apps]
     for app in apps:
-        wit_detail = ET.SubElement(app, "witDetail", wit=siglum, resp="VorlageLLM")
+        wit_detail = ET.SubElement(app, "witDetail", wit=siglum, resp=f"#{resp_id}")
         if phrase:
             phrase_element = ET.SubElement(wit_detail, "phr")
             phrase_element.text = phrase
@@ -427,7 +427,7 @@ def add_responsibility_statement(doc:ElementTree, siglum:str, model_id:str) -> t
     current_time = datetime.now()
     formatted_time = current_time.strftime('%Y-%m-%dT%H:%M:%S')
     
-    resp = ET.SubElement(responsibility_statement, "resp", when=formatted_time, resp="VorlageLLM")
+    resp = ET.SubElement(responsibility_statement, "resp", when=formatted_time)
     resp.text = f"Witness '{siglum}' added using VorlageLLM using LLM '{model_id}'"
 
     return responsibility_statement, xml_id

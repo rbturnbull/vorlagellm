@@ -173,7 +173,7 @@ def run(
                 else:
                     console.print(f"[grey62]𐄂 {reading_text}")
 
-            add_wit_detail(app, siglum, phrase=doc_corresponding_text, phrase_lang=doc_language_code, note=justification)
+            add_wit_detail(app, siglum, phrase=doc_corresponding_text, phrase_lang=doc_language_code, note=justification, resp_id=resp_id)
                             
             console.print(justification, style="blue")
 
