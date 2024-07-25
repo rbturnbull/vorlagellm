@@ -18,6 +18,7 @@ from vorlagellm.tei import (
     get_verses,
     get_reading_permutations,
     get_verse_text,
+    add_doc_metadata,
     add_witness_readings,
     write_tei,
     add_wit_detail,
@@ -54,7 +55,6 @@ def run(
     doc_db:Path=None,
     siglum:str="",
     include:list[str]=None,
-    window:int=3,    
 ):
     """ Runs the main VorlageLLM pipeline on a document to predict which source readings from an apparatus could have produced its text. """
     llm = get_llm(hf_auth=hf_auth, openai_api_key=openai_api_key, model_id=model_id)
@@ -66,7 +66,10 @@ def run(
     # Add as witness to apparatus
     siglum = siglum or get_siglum(doc)
     assert siglum, f"Could not determine siglum in '{doc_path}'. Please add a siglum to the TEI XML or add a siglum in the command line with --siglam"
-    add_siglum(apparatus, siglum)
+    witness_element = add_siglum(apparatus, siglum)
+
+    # Add metadata to apparatus
+    add_doc_metadata(witness_element, doc)
 
     # Get languages
     doc_language = get_language(doc)

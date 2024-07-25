@@ -357,3 +357,26 @@ def readings_for_witness(app:Element, siglum:str) -> set[Element]:
     return set(reading for reading in readings if reading_has_witness(reading, siglum))
 
 
+def add_doc_metadata(witness_element:Element, doc:ElementTree) -> Element:
+    """
+    Adds metadata from the `doc` element tree to the `witness_element`.
+
+    This function searches for a `biblFull` element within the given `witness_element`.
+    If it does not exist, a new `biblFull` element is created. It then copies all children
+    from the `fileDesc` element in the `doc` element tree and appends them to the `biblFull` element.
+
+    Args:
+        witness_element (Element): The XML element representing the witness to which metadata will be added.
+        doc (ElementTree): The XML element tree containing the source metadata.
+
+    Returns:
+        Element: The `biblFull` element within the `witness_element` containing the appended metadata.
+    """
+    bibl_full = find_element(witness_element, "biblFull")
+    if bibl_full is None:
+        bibl_full = ET.SubElement(witness_element, "biblFull")
+        file_description = find_element(doc, "fileDesc")
+        if file_description:
+            for child in file_description:
+                bibl_full.append(child)
+    return bibl_full

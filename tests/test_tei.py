@@ -18,6 +18,7 @@ from vorlagellm.tei import (
     write_elements,
     get_apparatus_verse_text,
     readings_for_witness,
+    add_doc_metadata,
 )
 from pathlib import Path
 from lxml import etree as ET
@@ -409,3 +410,54 @@ def test_readings_for_witness_empty_wit():
     result = readings_for_witness(root, 'SIGLUM1')
     assert len(result) == 1
     assert next(iter(result)).text == 'Text 2'
+
+
+def test_add_doc_metadata_existing_biblFull():
+    witness_element = ET.Element("witness")
+    bibl_full = ET.SubElement(witness_element, "biblFull")
+    doc = ET.ElementTree(ET.Element("root"))
+    file_desc = ET.SubElement(doc.getroot(), "fileDesc")
+    title_stmt = ET.SubElement(file_desc, "titleStmt")
+    title_stmt.text = "Test Title"
+
+    result = add_doc_metadata(witness_element, doc)
+
+    assert result is not None
+    assert result.tag == "biblFull"
+    assert len(result) == 0  # biblFull already existed, so no new children should be added
+
+
+def test_add_doc_metadata_no_biblFull():
+    witness_element = ET.Element("witness")
+    doc = ET.ElementTree(ET.Element("root"))
+    file_desc = ET.SubElement(doc.getroot(), "fileDesc")
+    title_stmt = ET.SubElement(file_desc, "titleStmt")
+    title_stmt.text = "Test Title"
+
+    result = add_doc_metadata(witness_element, doc)
+
+    assert result is not None
+    assert result.tag == "biblFull"
+    assert len(result) == 1  # One child (fileDesc) should be added
+    assert result[0].tag == "titleStmt"
+    assert result[0].text == "Test Title"
+
+
+def test_add_doc_metadata_fileDesc_with_multiple_children():
+    witness_element = ET.Element("witness")
+    doc = ET.ElementTree(ET.Element("root"))
+    file_desc = ET.SubElement(doc.getroot(), "fileDesc")
+    title_stmt = ET.SubElement(file_desc, "titleStmt")
+    title_stmt.text = "Test Title"
+    publication_stmt = ET.SubElement(file_desc, "publicationStmt")
+    publication_stmt.text = "Test Publication"
+
+    result = add_doc_metadata(witness_element, doc)
+
+    assert result is not None
+    assert result.tag == "biblFull"
+    assert len(result) == 2  # One child (fileDesc) should be added
+    assert result[0].tag == "titleStmt"
+    assert result[0].text == "Test Title"
+    assert result[1].tag == "publicationStmt"
+    assert result[1].text == "Test Publication"
