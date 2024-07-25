@@ -28,6 +28,7 @@ langchain-openai = ">=0.1.6"
 rich = "^13.7.1"
 chromadb = "^0.5.0"
 langchain-anthropic = "^0.1.15"
+transformers = "^4.43.2"
 
 [tool.poetry.group.llama]
 optional = true
