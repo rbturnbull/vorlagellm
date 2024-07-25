@@ -25,6 +25,7 @@ from vorlagellm.tei import (
     find_elements,
     get_language_code,
     get_verse_element,
+    add_responsibility_statement,
     extract_text,
     reading_has_witness,
     get_apparatus_verse_text,
@@ -67,6 +68,9 @@ def run(
     siglum = siglum or get_siglum(doc)
     assert siglum, f"Could not determine siglum in '{doc_path}'. Please add a siglum to the TEI XML or add a siglum in the command line with --siglam"
     witness_element = add_siglum(apparatus, siglum)
+
+    # Add responsibility statement
+    add_responsibility_statement(apparatus, siglum, model_id)
 
     # Add metadata to apparatus
     add_doc_metadata(witness_element, doc)

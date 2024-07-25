@@ -6,6 +6,8 @@ from lxml.etree import Element as new_element
 from lxml.etree import ElementTree as new_element_tree
 import re
 from dataclasses import dataclass
+from datetime import datetime
+import copy
 
 from .languages import convert_language_code
 
@@ -372,11 +374,54 @@ def add_doc_metadata(witness_element:Element, doc:ElementTree) -> Element:
     Returns:
         Element: The `biblFull` element within the `witness_element` containing the appended metadata.
     """
-    bibl_full = find_element(witness_element, "biblFull")
+    bibl_full = find_element(witness_element, ".//biblFull")
     if bibl_full is None:
         bibl_full = ET.SubElement(witness_element, "biblFull")
-        file_description = find_element(doc, "fileDesc")
+        file_description = find_element(doc, ".//fileDesc")
         if file_description:
             for child in file_description:
-                bibl_full.append(child)
+                new_child = copy.deepcopy(child)
+                bibl_full.append(new_child)
     return bibl_full
+
+
+def add_responsibility_statement(doc:ElementTree, siglum:str, model_id:str) -> Element:
+    """
+    Adds a responsibility statement to the XML document.
+
+    Args:
+        doc (ElementTree): The XML document to which the responsibility statement will be added.
+        siglum (str): The siglum of the witness.
+        model_id (str): The ID of the LLM model used.
+
+    Returns:
+        Element: The created responsibility statement element.
+
+    Raises:
+        ValueError: If the <titleStmt> element is not found in the document.
+    """
+    if isinstance(doc, ElementTree):
+        doc = doc.getroot()
+
+    header = find_element(doc, ".//teiHeader")
+    if header is None:
+        header = ET.SubElement(doc, "teiHeader")
+
+    file_description = find_element(header, ".//fileDesc")
+    if file_description is None:
+        file_description = ET.SubElement(header, "fileDesc")
+
+    title_statement = find_element(file_description, ".//titleStmt")
+    if title_statement is None:
+        title_statement = ET.SubElement(file_description, "titleStmt")
+
+    responsibility_statement = ET.SubElement(title_statement, "respStmt")
+    
+    # Get datetime in required format
+    current_time = datetime.now()
+    formatted_time = current_time.strftime('%Y-%m-%dT%H:%M:%S')
+    
+    resp = ET.SubElement(responsibility_statement, "resp", when=formatted_time, resp="VorlageLLM")
+    resp.text = f"Witness '{siglum}' using VorlageLLM using LLM '{model_id}'"
+
+    return responsibility_statement

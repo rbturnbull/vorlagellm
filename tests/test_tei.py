@@ -18,8 +18,10 @@ from vorlagellm.tei import (
     write_elements,
     get_apparatus_verse_text,
     readings_for_witness,
+    add_responsibility_statement,
     add_doc_metadata,
 )
+import pytest
 from pathlib import Path
 from lxml import etree as ET
 from lxml.etree import Element
@@ -461,3 +463,46 @@ def test_add_doc_metadata_fileDesc_with_multiple_children():
     assert result[0].text == "Test Title"
     assert result[1].tag == "publicationStmt"
     assert result[1].text == "Test Publication"
+
+
+def test_add_responsibility_statement_valid():
+    # Create a sample XML document
+    xml_string = """
+    <TEI>
+        <titleStmt>
+            <title>Sample Title</title>
+        </titleStmt>
+    </TEI>
+    """
+    doc = ET.ElementTree(ET.fromstring(xml_string))
+
+    # Call the function
+    siglum = "A"
+    model_id = "model_123"
+    result = add_responsibility_statement(doc, siglum, model_id)
+
+    # Verify the result
+    assert result.tag == "respStmt"
+    resp = result.find("resp")
+    assert resp is not None
+    assert "when" in resp.attrib
+    assert resp.text == f"Witness '{siglum}' using VorlageLLM using LLM '{model_id}'"
+
+def test_add_responsibility_statement_no_title_stmt():
+    # Create a sample XML document without titleStmt
+    xml_string = """
+    <TEI>
+        <fileDesc></fileDesc>
+    </TEI>
+    """
+    doc = ET.ElementTree(ET.fromstring(xml_string))
+    add_responsibility_statement(doc, "A", "model_123")
+
+
+def test_add_responsibility_statement_test_doc():
+    doc = read_tei(TEST_DOC)
+    result = add_responsibility_statement(doc, "A", "model_123")
+    assert len(result) == 1
+    assert result[0].tag == "resp"
+    assert "Witness 'A' using VorlageLLM using LLM 'model_123'" == result[0].text
+
