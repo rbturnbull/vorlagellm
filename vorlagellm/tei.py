@@ -378,7 +378,7 @@ def add_doc_metadata(witness_element:Element, doc:ElementTree) -> Element:
     if bibl_full is None:
         bibl_full = ET.SubElement(witness_element, "biblFull")
         file_description = find_element(doc, ".//fileDesc")
-        if file_description:
+        if file_description is not None:
             for child in file_description:
                 new_child = copy.deepcopy(child)
                 bibl_full.append(new_child)
