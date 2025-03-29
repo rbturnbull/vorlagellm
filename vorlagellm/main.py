@@ -4,8 +4,8 @@ from pathlib import Path
 from rich.progress import track
 from rich.console import Console
 from langchain_openai import OpenAIEmbeddings
+import llmloader
 
-from .llms import get_llm
 from .chains import build_chain, build_corresponding_text_chain, build_source_chain
 from .prompts import readings_list_to_str
 from .rag import get_apparatus_db, get_teidoc_db, get_db, get_similar_verses, get_similar_verses_by_phrase
@@ -43,22 +43,20 @@ DEFAULT_MODEL_ID = "gpt-4o"
 DEFAULT_EMBEDDING_MODEL_ID = "text-embedding-3-large"
 
 
-
 @app.command()
 def run(
     doc: Path, 
     apparatus: Path,
     output:Path,
-    hf_auth:Annotated[str, typer.Argument(envvar=["HF_AUTH"])]="",
-    openai_api_key:Annotated[str, typer.Argument(envvar=["OPENAI_API_KEY"])]="",
-    model_id:str=DEFAULT_MODEL_ID,
+    api_key:str="",
+    model:str=DEFAULT_MODEL_ID,
     apparatus_db:Path=None,
     doc_db:Path=None,
     siglum:str="",
     include:list[str]=None,
 ):
     """ Runs the main VorlageLLM pipeline on a document to predict which source readings from an apparatus could have produced its text. """
-    llm = get_llm(hf_auth=hf_auth, openai_api_key=openai_api_key, model_id=model_id)
+    llm = llmloader.load(model=model, api_key=api_key)
     doc_path = doc
     doc = read_tei(doc_path)
     apparatus_path = apparatus
