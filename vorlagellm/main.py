@@ -68,7 +68,7 @@ def run(
     witness_element = add_siglum(apparatus, siglum)
 
     # Add responsibility statement
-    _, resp_id = add_responsibility_statement(apparatus, siglum, model_id)
+    _, resp_id = add_responsibility_statement(apparatus, siglum, model)
 
     # Add metadata to apparatus
     add_doc_metadata(witness_element, doc)
@@ -87,6 +87,7 @@ def run(
         doc_db = get_teidoc_db(doc, model=embeddings_model, path=doc_db)
     
     if apparatus_db:
+        embeddings_model = OpenAIEmbeddings(model=DEFAULT_EMBEDDING_MODEL_ID)
         apparatus_db = get_apparatus_db(apparatus, model=embeddings_model, path=apparatus_db)
 
     # Create chain to use
@@ -102,19 +103,23 @@ def run(
         doc_verse_text = get_verse_text(doc, verse)
         console.print(f"Processing verse '{verse}': {doc_verse_text}")
         apparatus_verse_element = get_verse_element(apparatus, verse)
+
         for app in find_elements(apparatus_verse_element, ".//app"):
             if app_has_witness(app, siglum):
+                continue
+
+            readings = find_elements(app, ".//rdg")
+            if len(readings) < 2:
                 continue
 
             apparatus_verse_text = get_apparatus_verse_text(app)
 
             console.print(f"Apparatus text: [blue]{apparatus_verse_text}[/blue]")
-
-            readings = find_elements(app, ".//rdg")
+                
             reading_texts = [extract_text(reading) for reading in readings]
             reading_list = ", ".join([("⸂" + reading + "⸃") if reading else "⸂OMISSION⸃" for reading in reading_texts])
             readings_string = readings_list_to_str([extract_text(reading) for reading in readings])
-            permutations = "\n".join([permutation.text for permutation in get_reading_permutations(apparatus, verse, witness=siglum, bracket_app=app)])
+            permutations = "\n".join([permutation.text for permutation in get_reading_permutations(apparatus, verse, witness=siglum, bracket_app=app, max_permutations=10)])
             doc_corresponding_text = corresponding_text_chain.invoke(dict(
                 doc_verse_text=doc_verse_text,
                 permutations=permutations,
@@ -125,6 +130,7 @@ def run(
             # find similar verses
             similar_verses = set()
             if doc_db:
+                doc_verse_text = doc_verse_text or ""
                 similar_verses.update(get_similar_verses_by_phrase(doc_db, doc_verse_text))
                 if doc_corresponding_text:
                     similar_verses.update(get_similar_verses_by_phrase(doc_db, doc_corresponding_text))
@@ -143,11 +149,11 @@ def run(
                 )
                 for similar_verse in similar_verses:
                     example_doc_text = get_verse_text(doc, similar_verse)
-                    similar_verse_permutations = get_reading_permutations(apparatus, similar_verse, witness=siglum)
+                    similar_verse_permutations = get_reading_permutations(apparatus, similar_verse, witness=siglum, max_permutations=5)
                     similar_readings = readings_list_to_str([similar_verse_permutation.text for similar_verse_permutation in similar_verse_permutations])
                     similar_verse_examples += (
                         f"{doc_language} example {similar_verse}:\n{example_doc_text}\n"
-                        f"Possible {apparatus_language} source:\n{similar_readings}\n\n"
+                        f"Possible {apparatus_language} source(s):\n{similar_readings}\n\n"
                     )
                 similar_verse_examples += (
                     f"Here is the {doc_language} text to analyze:\n{doc_corresponding_text}\n[Full text in context: {doc_verse_text}]\n\n"
@@ -187,10 +193,27 @@ def doc_db(
     doc: Path, 
     db:Path,
 ):
+    """
+    Creates a database for the document.
+    """
     embeddings_model = OpenAIEmbeddings(model=DEFAULT_EMBEDDING_MODEL_ID)
     doc_path = doc
     doc = read_tei(doc_path)    
     db = get_teidoc_db(doc, model=embeddings_model, path=db)
+    return db
+
+
+@app.command()
+def apparatus_db(
+    apparatus: Path, 
+    db:Path,
+):
+    """
+    Creates a database for the apparatus.
+    """
+    embeddings_model = OpenAIEmbeddings(model=DEFAULT_EMBEDDING_MODEL_ID)
+    apparatus = read_tei(apparatus)    
+    db = get_apparatus_db(apparatus, model=embeddings_model, path=db)
     return db
 
 
@@ -262,7 +285,6 @@ def agreements(
     apparatus = read_tei(apparatus)
     counter = count_witness_agreements(apparatus, siglum1, siglum2)
 
-    # breakpoint()
     # results = [
     #     counter[WitnessComparison.UNAMBIGUOUS_AGREEMENT],
     #     counter[WitnessComparison.AMBIGUOUS_AGREEMENT],

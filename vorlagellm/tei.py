@@ -79,7 +79,7 @@ def get_verses(doc:ElementTree|Element) -> list[str]:
     return [ab.attrib['n'] for ab in ab_elements if 'n' in ab.attrib]
 
 
-def get_reading_permutations(apparatus:ElementTree|Element, verse:str, witness:str="", bracket_app:Element|None=None) -> list[Permutation]:
+def get_reading_permutations(apparatus:ElementTree|Element, verse:str, witness:str="", bracket_app:Element|None=None, max_permutations:int=0, random_state:int=42) -> list[Permutation]:
     verse_element = get_verse_element(apparatus, verse)
     if verse_element is None:
         return []
@@ -116,13 +116,37 @@ def get_reading_permutations(apparatus:ElementTree|Element, verse:str, witness:s
     def clean_text(text:str) -> str:
         return re.sub(r"\s+", " ", text.strip())
 
-    return [Permutation(text=clean_text(permutation.text), readings=permutation.readings, apps=apps) for permutation in permutations]
+    perumutations = [Permutation(text=clean_text(permutation.text), readings=permutation.readings, apps=apps) for permutation in permutations]
+
+    if max_permutations and len(perumutations) > max_permutations:
+        return [perumutations[index] for index in range(0, len(perumutations), len(perumutations)//max_permutations)]
+        # import kmedoids
+        # import numpy as np
+        # import Levenshtein
+
+        # distance_matrix = np.zeros((len(perumutations), len(perumutations)))
+        # for index1, permutation1 in enumerate(perumutations):
+        #     for index2 in range(index1+1, len(perumutations)):
+        #         permutation2 = perumutations[index2]
+        #         distance = Levenshtein.distance(permutation1.text, permutation2.text)
+        #         distance_matrix[index1, index2] = distance
+        #         distance_matrix[index2, index1] = distance
+
+        # result = kmedoids.fasterpam(distance_matrix, max_permutations, random_state=random_state, init="build")
+
+        # permutations = [perumutations[index] for index in result.medoids]
+    
+    return permutations
+
 
 
 def extract_text(node:Element, include_tail:bool=True) -> str:
     text = node.text or ""
     for child in node:
-        tag = re.sub(r"{.*}", "", child.tag)
+        if isinstance(child.tag, str):
+            tag = re.sub(r"{.*}", "", child.tag)
+        else:
+            continue
         if tag in ["pc", "witDetail", "note"]:
             continue
         if tag == "app":            
