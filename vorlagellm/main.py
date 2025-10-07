@@ -101,7 +101,8 @@ def run(
     # for verse in track(verses):
     for verse in verses:
         doc_verse_text = get_verse_text(doc, verse)
-        console.print(f"Processing verse '{verse}': {doc_verse_text}")
+        console.rule(f"Verse '{verse}'", style="bold red")
+        console.print(f"Text: {doc_verse_text}")
         apparatus_verse_element = get_verse_element(apparatus, verse)
 
         for app in find_elements(apparatus_verse_element, ".//app"):
