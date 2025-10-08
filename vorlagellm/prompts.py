@@ -29,8 +29,6 @@ def build_prompt(**kwargs):
             "Cite the sentence IDs (given in square brackets) of relevant example sentences in your justification to explain why you decided which was the likely source of the translation. "
             "In your justification, cite phrases from {apparatus_language} readings themselves instead of the reading ID numbers. "
 
-            
-
             # "For example, here is an Arabic text:\n"
             # ""
 

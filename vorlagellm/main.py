@@ -17,6 +17,7 @@ from vorlagellm.tei import (
     get_language,
     get_verses,
     get_reading_permutations,
+    find_readings,
     get_verse_text,
     add_doc_metadata,
     add_witness_readings,
@@ -39,7 +40,7 @@ console = Console()
 
 app = typer.Typer()
 
-DEFAULT_MODEL_ID = "gpt-4o"
+DEFAULT_MODEL_ID = "gpt-4.1"
 DEFAULT_EMBEDDING_MODEL_ID = "text-embedding-3-large"
 
 
@@ -54,6 +55,7 @@ def run(
     doc_db:Path=None,
     siglum:str="",
     include:list[str]=None,
+    ignore:list[str]=None,
 ):
     """ Runs the main VorlageLLM pipeline on a document to predict which source readings from an apparatus could have produced its text. """
     llm = llmloader.load(model=model, api_key=api_key)
@@ -64,7 +66,7 @@ def run(
 
     # Add as witness to apparatus
     siglum = siglum or get_siglum(doc)
-    assert siglum, f"Could not determine siglum in '{doc_path}'. Please add a siglum to the TEI XML or add a siglum in the command line with --siglam"
+    assert siglum, f"Could not determine siglum in '{doc_path}'. Please add a siglum to the TEI XML or add a siglum in the command line with --siglum"
     witness_element = add_siglum(apparatus, siglum)
 
     # Add responsibility statement
@@ -88,7 +90,7 @@ def run(
     
     if apparatus_db:
         embeddings_model = OpenAIEmbeddings(model=DEFAULT_EMBEDDING_MODEL_ID)
-        apparatus_db = get_apparatus_db(apparatus, model=embeddings_model, path=apparatus_db)
+        apparatus_db = get_apparatus_db(apparatus, model=embeddings_model, path=apparatus_db, ignore_types=ignore)
 
     # Create chain to use
     corresponding_text_chain = build_corresponding_text_chain(llm, doc_language=doc_language, apparatus_language=apparatus_language)
@@ -98,7 +100,6 @@ def run(
     if include:
         verses = [v for v in verses if v in include]
 
-    # for verse in track(verses):
     for verse in verses:
         doc_verse_text = get_verse_text(doc, verse)
         console.rule(f"Verse '{verse}'", style="bold red")
@@ -109,7 +110,7 @@ def run(
             if app_has_witness(app, siglum):
                 continue
 
-            readings = find_elements(app, ".//rdg")
+            readings = find_readings(app, ignore_types=ignore)
             if len(readings) < 2:
                 continue
 
@@ -120,7 +121,7 @@ def run(
             reading_texts = [extract_text(reading) for reading in readings]
             reading_list = ", ".join([("⸂" + reading + "⸃") if reading else "⸂OMISSION⸃" for reading in reading_texts])
             readings_string = readings_list_to_str([extract_text(reading) for reading in readings])
-            permutations = "\n".join([permutation.text for permutation in get_reading_permutations(apparatus, verse, witness=siglum, bracket_app=app, max_permutations=10)])
+            permutations = "\n".join([permutation.text for permutation in get_reading_permutations(apparatus, verse, witness=siglum, bracket_app=app, max_permutations=10, ignore_types=ignore)])
             doc_corresponding_text = corresponding_text_chain.invoke(dict(
                 doc_verse_text=doc_verse_text,
                 permutations=permutations,
@@ -150,7 +151,7 @@ def run(
                 )
                 for similar_verse in similar_verses:
                     example_doc_text = get_verse_text(doc, similar_verse)
-                    similar_verse_permutations = get_reading_permutations(apparatus, similar_verse, witness=siglum, max_permutations=5)
+                    similar_verse_permutations = get_reading_permutations(apparatus, similar_verse, witness=siglum, max_permutations=5, ignore_types=ignore)
                     similar_readings = readings_list_to_str([similar_verse_permutation.text for similar_verse_permutation in similar_verse_permutations])
                     similar_verse_examples += (
                         f"{doc_language} example {similar_verse}:\n{example_doc_text}\n"

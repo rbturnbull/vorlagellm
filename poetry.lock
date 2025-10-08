@@ -2629,14 +2629,14 @@ rapidfuzz = ">=3.9.0,<4.0.0"
 
 [[package]]
 name = "llmloader"
-version = "0.1.3"
+version = "0.1.5"
 description = "Loads a Langchain LLM by model name as a string."
 optional = false
 python-versions = "<4.0,>=3.10"
 groups = ["main"]
 files = [
-    {file = "llmloader-0.1.3-py3-none-any.whl", hash = "sha256:4c067fbdc88f85a19e3c834b78bf9bb882c1a617e2a134ec7fdabb4bf3fd2901"},
-    {file = "llmloader-0.1.3.tar.gz", hash = "sha256:23f9038e83cd416e0d060307476c53f9aa0dffb12e89484ab941157f22ba669f"},
+    {file = "llmloader-0.1.5-py3-none-any.whl", hash = "sha256:a08e0c4cbb2367288f26fd58cd60d99f68f3fef6fc38cc40d85fb98afcafa00c"},
+    {file = "llmloader-0.1.5.tar.gz", hash = "sha256:5695549b0b5060f25c0a324ec86b79431feb22ae2e39534949ca5c5472264ceb"},
 ]
 
 [package.dependencies]

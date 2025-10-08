@@ -7,7 +7,7 @@ from vorlagellm.tei import (
     get_reading_permutations,
     get_verse_text,
 )
-from rich.progress import track
+from rich.progress import track, Progress
 
 
 def sentence_components(sentence:str, word_count:int=2) -> list[str]:
@@ -49,15 +49,15 @@ def get_similar_verses_by_phrase(db, phrase:str) -> set[str]:
     return similar_verses
 
 
-def build_apparatus_embeddingdocs(apparatus) -> list[EmbeddingDocument]:
+def build_apparatus_embeddingdocs(apparatus, ignore_types) -> list[EmbeddingDocument]:
     documents = []
-    for verse in track(get_verses(apparatus)):
-        permutations = get_reading_permutations(apparatus, verse)
+    verses = get_verses(apparatus)
+    for verse in track(verses):
+        permutations = get_reading_permutations(apparatus, verse, ignore_types=ignore_types, max_permutations=10)
         for ii, permutation in enumerate(permutations):  
             metadata = dict(
                 index=ii,
                 verse=verse,
-                # readings=permutation.readings,
             )
             document= EmbeddingDocument(page_content=permutation.text, metadata=metadata)
             documents.append(document)
@@ -82,15 +82,15 @@ def get_db(docs:list[EmbeddingDocument], model:OpenAIEmbeddings, path:Path|str) 
     else:
         print(f"Embedding {len(docs)} items to {path}")
         batch_size = 100
-        num_batches = len(documents) // batch_size + (1 if len(documents) % batch_size != 0 else 0)
+        num_batches = len(docs) // batch_size + (1 if len(docs) % batch_size != 0 else 0)
 
         db = None
 
         with Progress() as progress:
-            task = progress.add_task("[cyan]Indexing documents...", total=len(documents))
+            task = progress.add_task("[cyan]Indexing documents...", total=len(docs))
 
             for i in range(num_batches):
-                batch = documents[i * batch_size:(i + 1) * batch_size]
+                batch = docs[i * batch_size:(i + 1) * batch_size]
                 if i == 0:
                     db = Chroma.from_documents(
                         documents=batch,
@@ -103,10 +103,10 @@ def get_db(docs:list[EmbeddingDocument], model:OpenAIEmbeddings, path:Path|str) 
     return db
     
 
-def get_apparatus_db(apparatus, model:OpenAIEmbeddings, path:Path|str) -> Chroma:
+def get_apparatus_db(apparatus, model:OpenAIEmbeddings, path:Path|str, ignore_types:list[str]) -> Chroma:
     if path and Path(path).exists():
         return get_db(None, model, path)
-    items = build_apparatus_embeddingdocs(apparatus)
+    items = build_apparatus_embeddingdocs(apparatus, ignore_types=ignore_types)
     return get_db(items, model, path)
 
 

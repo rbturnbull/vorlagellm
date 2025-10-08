@@ -79,7 +79,21 @@ def get_verses(doc:ElementTree|Element) -> list[str]:
     return [ab.attrib['n'] for ab in ab_elements if 'n' in ab.attrib]
 
 
-def get_reading_permutations(apparatus:ElementTree|Element, verse:str, witness:str="", bracket_app:Element|None=None, max_permutations:int=0, random_state:int=42) -> list[Permutation]:
+def find_readings(element, ignore_types:list[str]|None) -> list[Element]:
+    readings = find_elements(element, ".//rdg")
+    if ignore_types:
+        readings = [reading for reading in readings if reading.attrib.get("type", "") not in ignore_types]
+    return readings
+
+
+def get_reading_permutations(
+    apparatus:ElementTree|Element, 
+    verse:str, 
+    witness:str="", 
+    bracket_app:Element|None=None, 
+    ignore_types:list[str]|None=None,
+    max_permutations:int=0, 
+) -> list[Permutation]:
     verse_element = get_verse_element(apparatus, verse)
     if verse_element is None:
         return []
@@ -87,16 +101,17 @@ def get_reading_permutations(apparatus:ElementTree|Element, verse:str, witness:s
     permutations = [Permutation(text="", readings=[])]
 
     apps = []
+    for child in verse_element.getchildren():
+        if not isinstance(child.tag, str):
+            continue
 
-    for child in verse_element:
-        tag = re.sub(r"{.*}", "", child.tag)
+        tag = re.sub(r"\{.*\}", "", child.tag)
         if tag == "app":
             has_witness = bool(witness) and app_has_witness(child, witness)
 
             apps.append(child)
             new_permutations = []
-            # readings = find_elements(child, ".//lem") + find_elements(child, ".//rdg")
-            readings = find_elements(child, ".//rdg")
+            readings = find_readings(child, ignore_types=ignore_types)
             for reading in readings:
                 if has_witness and not reading_has_witness(reading, witness):
                     continue
