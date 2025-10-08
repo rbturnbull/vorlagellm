@@ -68,6 +68,7 @@ def build_source_prompt(**kwargs):
             "If in the translation technique you see examples of {doc_language} text translating the concepts of the source {apparatus_language} in the examples, then any {apparatus_language} text could be the source of the {doc_language} so long as the same concepts are conveyed. "
             "If the translation technique looks like it preserves word order in certain circumstances and you see the same circumstances in the current text, then you prefer a source {apparatus_language} reading that matches the word order. "
             "But if the translation technique is inconsistent in preserving word order, then you should not consider word order in your decision. "
+            "{notes}\n"
             "Cite the IDs of relevant example sentences in your justification to explain why you decided which was the likely source of the translation. "
             "In your justification, cite phrases from {apparatus_language} readings themselves instead of the reading ID numbers. "
 

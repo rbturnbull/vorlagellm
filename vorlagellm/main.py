@@ -54,6 +54,7 @@ def run(
     apparatus_db:Path=None,
     doc_db:Path=None,
     siglum:str="",
+    notes:Path=None,
     include:list[str]=None,
     ignore:list[str]=None,
 ):
@@ -68,6 +69,11 @@ def run(
     siglum = siglum or get_siglum(doc)
     assert siglum, f"Could not determine siglum in '{doc_path}'. Please add a siglum to the TEI XML or add a siglum in the command line with --siglum"
     witness_element = add_siglum(apparatus, siglum)
+
+    if notes and Path(notes).exists():
+        notes = Path(notes).read_text()
+    else:
+        notes = ""
 
     # Add responsibility statement
     _, resp_id = add_responsibility_statement(apparatus, siglum, model)
@@ -94,7 +100,7 @@ def run(
 
     # Create chain to use
     corresponding_text_chain = build_corresponding_text_chain(llm, doc_language=doc_language, apparatus_language=apparatus_language)
-    source_chain = build_source_chain(llm, doc_language=doc_language, apparatus_language=apparatus_language)
+    source_chain = build_source_chain(llm, doc_language=doc_language, apparatus_language=apparatus_language, notes=notes)
 
     verses = get_verses(apparatus)
     if include:

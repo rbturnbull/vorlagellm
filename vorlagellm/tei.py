@@ -155,31 +155,42 @@ def get_reading_permutations(
 
 
 
-def extract_text(node:Element, include_tail:bool=True) -> str:
-    text = node.text or ""
-    for child in node:
-        if isinstance(child.tag, str):
-            tag = re.sub(r"{.*}", "", child.tag)
-        else:
-            continue
-        if tag in ["pc", "witDetail", "note"]:
-            continue
-        if tag == "app":            
-            lemma = find_element(child, ".//lem")
-            if lemma is None:
-                lemma = find_element(child, ".//rdg")
-            text += extract_text(lemma) or ""
-            text += " "
-        else:
-            text += extract_text(child) or ""
+# def extract_text(node:Element, include_tail:bool=True) -> str:
+#     text = node.text or ""
+#     for child in node:
+#         if isinstance(child.tag, str):
+#             tag = re.sub(r"{.*}", "", child.tag)
+#         else:
+#             continue
         
-            if tag == "w":
-                text += " "
+#         if tag in ["pc", "witDetail", "note"]:
+#             continue
+#         if tag == "app":            
+#             breakpoint()
+#             lemma = find_element(child, ".//lem")
+#             if lemma is None:
+#                 lemma = find_element(child, ".//rdg")
+#             text += extract_text(lemma) or ""
+#             text += " "
+#         elif tag == "ref":
+#             root = child.getroottree().getroot()
+#             target_id = child.attrib['target'].lstrip("#")
+#             ns = {"tei": "http://www.tei-c.org/ns/1.0"}
+#             target = root.xpath(f"//*[@xml:id='{target_id}']", namespaces=ns)
 
-    if include_tail:
-        text += node.tail or ""
+#             breakpoint()
+#             child_text = extract_text(target[0]) if target else extract_text(child)
+#             text += child_text or ""
+#         else:
+#             text += extract_text(child) or ""
+        
+#             if tag == "w":
+#                 text += " "
 
-    return text
+#     if include_tail:
+#         text += node.tail or ""
+
+#     return text
 
 
 def get_verse_element(doc:ElementTree|Element, verse:str) -> Element|None:
@@ -348,7 +359,11 @@ def get_apparatus_verse_text(app:Element, witness:str="") -> str:
     text = text.strip()
     text += " "
     for child in parent:
-        tag = re.sub(r"{.*}", "", child.tag)
+        if isinstance(child.tag, str):
+            tag = re.sub(r"{.*}", "", child.tag)
+        else:
+            continue
+
         if tag in ["pc", "witDetail", "note"]:
             continue
 
@@ -381,6 +396,43 @@ def get_apparatus_verse_text(app:Element, witness:str="") -> str:
     text += parent.tail or ""
     text = re.sub(r"\s+", " ", text.strip())
     return text    
+
+
+def extract_text(node:Element, include_tail:bool=True) -> str:
+    if node is None:
+        return ""
+    
+    if isinstance(node.tag, str):
+        tag = re.sub(r"{.*}", "", node.tag)
+    else:
+        return ""
+
+    if tag in ["pc", "witDetail", "note"]:
+        return ""
+    if tag == "app":            
+        lemma = find_element(node, ".//lem")
+        if lemma is None:
+            lemma = find_element(node, ".//rdg")
+        return extract_text(lemma) or ""
+    if tag == "ref":
+        root = node.getroottree().getroot()
+        target_id = node.attrib['target'].lstrip("#")
+        ns = {"tei": "http://www.tei-c.org/ns/1.0"}
+        target = root.xpath(f"//*[@xml:id='{target_id}']", namespaces=ns)
+
+        if target:
+            return extract_text(target[0])
+
+    text = node.text or ""
+    for child in node:
+        text += " " + extract_text(child)
+
+    if include_tail and node.tail:
+        text += " " + node.tail
+
+    text = re.sub(r"\s+", " ", text.strip())
+
+    return text.strip()
 
 
 def readings_for_witness(app:Element, siglum:str) -> set[Element]:

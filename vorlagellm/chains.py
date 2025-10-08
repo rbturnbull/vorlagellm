@@ -29,8 +29,8 @@ def build_chain(llm, doc_language: str, apparatus_language: str):
     return prompt | llm | StrOutputParser() | parse_result
 
 
-def build_source_chain(llm, doc_language: str, apparatus_language: str):
-    prompt = build_source_prompt(doc_language=doc_language, apparatus_language=apparatus_language)
+def build_source_chain(llm, doc_language: str, apparatus_language: str, notes:str):
+    prompt = build_source_prompt(doc_language=doc_language, apparatus_language=apparatus_language, notes=notes)
 
     return prompt | llm | StrOutputParser() | parse_result
 
