@@ -45,4 +45,6 @@ def build_corresponding_text_chain(llm, doc_language: str, apparatus_language: s
     if verbose:
         prompt = prompt | print_prompt
 
-    return prompt | llm.bind(stop=["----"]) | StrOutputParser() | strip_hyphens
+    # llm_with_fallback = llm.bind(stop=["----"]).with_fallbacks([llm])
+
+    return prompt | llm | StrOutputParser() | strip_hyphens

@@ -1,4 +1,5 @@
 from lxml.etree import _ElementTree as ElementTree
+from rich.progress import track
 
 from .tei import find_elements, extract_text, reading_has_witness, add_witness_readings, remove_witnesss_readings
 
@@ -12,9 +13,9 @@ def do_ensemble(apparatuses:list[ElementTree], witness:str) -> ElementTree:
         if apparatus_readings_count is None:
             apparatus_readings_count = len(apparatus_readings)
         else:
-            assert apparatus_readings_count == len(apparatus_readings)
+            assert apparatus_readings_count == len(apparatus_readings), f"Each apparatus must have the same number of readings, expected {apparatus_readings_count} and found {len(apparatus_readings)}"
 
-    for readings in zip(*apparatus_readings_list):
+    for readings in track(zip(*apparatus_readings_list), total=apparatus_readings_count, description="Ensembling readings"):
         readings_with_witness = 0
         # Make sure that each reading is the same
         readings_text = None

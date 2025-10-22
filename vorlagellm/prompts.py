@@ -48,7 +48,7 @@ def build_prompt(**kwargs):
 
             "Now list the {apparatus_language} readings which could have been the source of the {doc_language} text given the translation technique."
         ),
-        ("ai", "The {apparatus_language} texts which could be translated into the {doc_language} '{text}' are: "),
+        # ("ai", "The {apparatus_language} texts which could be translated into the {doc_language} '{text}' are: "),
     ]
     return ChatPromptTemplate.from_messages(messages=messages).partial(**kwargs)
 
@@ -80,7 +80,7 @@ def build_source_prompt(**kwargs):
 
             "Now list the numbers of the {apparatus_language} readings which could plausibly have been the source of the {doc_language} text given the translation technique."
         ),
-        ("ai", "The {apparatus_language} readings which plausibly could be translated into the {doc_language} '{doc_corresponding_text}' are:"),
+        # ("ai", "The {apparatus_language} readings which plausibly could be translated into the {doc_language} '{doc_corresponding_text}' are:"),
     ]
     return ChatPromptTemplate.from_messages(messages=messages).partial(**kwargs)
 
@@ -118,7 +118,7 @@ def build_corresponding_text_prompt(**kwargs):
             "Here are the possible readings at the variation unit: {reading_list}\n\n"
             "Here are the potential readings in context. The location of the variation unit is indicated with brackets: ⸂ ⸃:\n{permutations}\n\n"
         ),
-        ("ai", "The {doc_language} word(s) from '{doc_verse_text}' which best correspond to the text in the brackets (i.e. {reading_list}) are:"),
+        # ("ai", "The {doc_language} word(s) from '{doc_verse_text}' which best correspond to the text in the brackets (i.e. {reading_list}) are:"),
     ]
     return ChatPromptTemplate.from_messages(messages=messages).partial(**kwargs)
 

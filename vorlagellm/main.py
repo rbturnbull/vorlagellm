@@ -133,6 +133,7 @@ def run(
                 permutations=permutations,
                 reading_list=reading_list
             ))
+            
             console.print(f"Corresponding text: [blue]{doc_corresponding_text}[/blue]")
 
             # find similar verses

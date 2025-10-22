@@ -328,7 +328,8 @@ def strip_namespace(element: Element) -> Element:
     """Remove namespace from an element and its children."""
     element.tag = element.tag.split('}', 1)[-1]  # Remove namespace
     for elem in element.iter():
-        elem.tag = elem.tag.split('}', 1)[-1]  # Remove namespace
+        if isinstance(elem, str):
+            elem.tag = elem.tag.split('}', 1)[-1]  # Remove namespace
     return element
 
 
