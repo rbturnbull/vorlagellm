@@ -8,7 +8,7 @@ from vorlagellm.tei import (
     get_reading_permutations,
     get_verse_text,
     has_witness,
-    add_witness_readings,
+    extract_text,
     write_tei,
     find_elements,
     add_wit_detail,
@@ -18,10 +18,9 @@ from vorlagellm.tei import (
     write_elements,
     get_apparatus_verse_text,
     readings_for_witness,
-    add_responsibility_statement,
+    add_responsibility_statement_llm,
     add_doc_metadata,
 )
-import pytest
 from pathlib import Path
 from lxml import etree as ET
 from lxml.etree import Element
@@ -319,6 +318,49 @@ def test_app_has_witness_multiple_sigla():
     assert app_has_witness(app, siglum) == True
 
 
+def test_extract_text_app_plain():
+    xml_str = """
+        <app>with apparatus</app> 
+    """
+    parser = ET.XMLParser(remove_blank_text=True)
+    app = ET.fromstring(xml_str, parser=parser)
+    text = extract_text(app)
+    assert text == "with apparatus"
+
+
+def test_extract_text_app_lem():
+    xml_str = """
+        <app>
+            <lem>with apparatus</lem>
+        </app> 
+    """
+    parser = ET.XMLParser(remove_blank_text=True)
+    app = ET.fromstring(xml_str, parser=parser)
+    text = extract_text(app)
+    assert text == "with apparatus"
+
+
+def test_extract_text_word():
+    xml_str = """
+        <w><hi rend="rubric"><hi rend="cap11">p</hi>aulus</hi></w>
+    """
+    parser = ET.XMLParser(remove_blank_text=True)
+    word = ET.fromstring(xml_str, parser=parser)
+    text = extract_text(word)
+    assert text == "paulus"
+
+
+def test_extract_text_ab():
+    xml_str = """
+        <ab n="B07K1V1"><w><hi rend="rubric"><hi rend="cap11">p</hi>aulus</hi></w><pc>·</pc><w><hi rend="rubric">uocatus</hi></w><pc>·</pc>
+		<lb xml:id="P279vC2L3-VL51" n="3"/><w>ap<ex>osto</ex>l<ex>u</ex>s</w><w><abbr type="nomSac"><hi rend="overline">xpi</hi></abbr></w><w><abbr type="nomSac"><hi rend="overline">ihu</hi></abbr></w><pc>.</pc><w>p<ex>er</ex></w><w>uoluntate<ex>m</ex></w><w><abbr type="nomSac"><hi rend="overline">di</hi></abbr></w><pc>.</pc><w><ex rend="&amp;">et</ex></w><w>sostenes</w><w>f<ex>rate</ex>r</w></ab>
+    """
+    parser = ET.XMLParser(remove_blank_text=True)
+    ab = ET.fromstring(xml_str, parser=parser)
+    text = extract_text(ab)
+    assert text == "paulus uocatus apostolus xpi ihu per uoluntatem di et sostenes frater"
+
+
 def test_get_apparatus_verse_text_simple():
     xml_str = """
     <ab>
@@ -465,7 +507,7 @@ def test_add_doc_metadata_fileDesc_with_multiple_children():
     assert result[1].text == "Test Publication"
 
 
-def test_add_responsibility_statement_valid():
+def test_add_responsibility_statement_llm_valid():
     # Create a sample XML document
     xml_string = """
     <TEI>
@@ -479,7 +521,7 @@ def test_add_responsibility_statement_valid():
     # Call the function
     siglum = "A"
     model_id = "model_123"
-    result, _ = add_responsibility_statement(doc, siglum, model_id)
+    result, _ = add_responsibility_statement_llm(doc, siglum, model_id)
 
     # Verify the result
     assert result.tag == "respStmt"
@@ -488,7 +530,7 @@ def test_add_responsibility_statement_valid():
     assert "when" in resp.attrib
     assert resp.text == f"Witness '{siglum}' added using VorlageLLM using LLM '{model_id}'"
 
-def test_add_responsibility_statement_no_title_stmt():
+def test_add_responsibility_statement_llm_no_title_stmt():
     # Create a sample XML document without titleStmt
     xml_string = """
     <TEI>
@@ -496,12 +538,12 @@ def test_add_responsibility_statement_no_title_stmt():
     </TEI>
     """
     doc = ET.ElementTree(ET.fromstring(xml_string))
-    add_responsibility_statement(doc, "A", "model_123")
+    add_responsibility_statement_llm(doc, "A", "model_123")
 
 
-def test_add_responsibility_statement_test_doc():
+def test_add_responsibility_statement_llm_test_doc():
     doc = read_tei(TEST_DOC)
-    result, _ = add_responsibility_statement(doc, "A", "model_123")
+    result, _ = add_responsibility_statement_llm(doc, "A", "model_123")
     assert len(result) == 1
     assert result[0].tag == "resp"
     assert "Witness 'A' added using VorlageLLM using LLM 'model_123'" == result[0].text

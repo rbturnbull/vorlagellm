@@ -26,7 +26,7 @@ from vorlagellm.tei import (
     find_elements,
     get_language_code,
     get_verse_element,
-    add_responsibility_statement,
+    add_responsibility_statement_llm,
     extract_text,
     reading_has_witness,
     get_apparatus_verse_text,
@@ -76,7 +76,7 @@ def run(
         notes = ""
 
     # Add responsibility statement
-    _, resp_id = add_responsibility_statement(apparatus, siglum, model)
+    _, resp_id = add_responsibility_statement_llm(apparatus, siglum, model)
 
     # Add metadata to apparatus
     add_doc_metadata(witness_element, doc)

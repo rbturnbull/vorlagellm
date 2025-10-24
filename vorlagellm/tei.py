@@ -126,7 +126,7 @@ def get_reading_permutations(
             permutations = new_permutations
         else:
             for permutation in permutations:
-                permutation.text += " " + extract_text(child)
+                permutation.text = (permutation.text + " " + extract_text(child)).strip()
 
     def clean_text(text:str) -> str:
         return re.sub(r"\s+", " ", text.strip())
@@ -399,7 +399,7 @@ def get_apparatus_verse_text(app:Element, witness:str="") -> str:
     return text    
 
 
-def extract_text(node:Element, include_tail:bool=True) -> str:
+def extract_text(node:Element, include_tail:bool=True, strip:bool=True) -> str:
     if node is None:
         return ""
     
@@ -414,7 +414,8 @@ def extract_text(node:Element, include_tail:bool=True) -> str:
         lemma = find_element(node, ".//lem")
         if lemma is None:
             lemma = find_element(node, ".//rdg")
-        return extract_text(lemma) or ""
+        if lemma: 
+            return extract_text(lemma, strip=False) or ""
     if tag == "ref":
         root = node.getroottree().getroot()
         target_id = node.attrib['target'].lstrip("#")
@@ -422,18 +423,24 @@ def extract_text(node:Element, include_tail:bool=True) -> str:
         target = root.xpath(f"//*[@xml:id='{target_id}']", namespaces=ns)
 
         if target:
-            return extract_text(target[0])
+            return extract_text(target[0], strip=strip)
 
     text = node.text or ""
     for child in node:
-        text += " " + extract_text(child)
+        text += extract_text(child, strip=False)
 
     if include_tail and node.tail:
-        text += " " + node.tail
+        text += node.tail
 
-    text = re.sub(r"\s+", " ", text.strip())
+    text = re.sub(r"\s+", " ", text)
 
-    return text.strip()
+    if tag == "w" or (tag == "lb" and node.attrib.get("break", "").lower() != "no"):
+        text += " "
+
+    if strip:
+        text = text.strip()
+
+    return text
 
 
 def readings_for_witness(app:Element, siglum:str) -> set[Element]:
@@ -477,14 +484,14 @@ def add_doc_metadata(witness_element:Element, doc:ElementTree) -> Element:
     return bibl_full
 
 
-def add_responsibility_statement(doc:ElementTree, siglum:str, model_id:str) -> tuple[Element,str]:
+def add_responsibility_statement(doc:ElementTree, xml_id:str, description:str) -> tuple[Element,str]:
     """
     Adds a responsibility statement to the XML document.
 
     Args:
         doc (ElementTree): The XML document to which the responsibility statement will be added.
         siglum (str): The siglum of the witness.
-        model_id (str): The ID of the LLM model used.
+        description (str): The description of the responsibility statement.
 
     Returns:
         Element: The responsibility statement element that was added to the document.
@@ -506,7 +513,6 @@ def add_responsibility_statement(doc:ElementTree, siglum:str, model_id:str) -> t
         title_statement = ET.SubElement(file_description, "titleStmt")
 
     # Get unique ID
-    xml_id = "VorlageLLM"
     counter = 1
     while find_element(title_statement, f".//respStmt[@{{http://www.w3.org/XML/1998/namespace}}id='{xml_id}']") is not None:
         counter += 1
@@ -520,6 +526,24 @@ def add_responsibility_statement(doc:ElementTree, siglum:str, model_id:str) -> t
     formatted_time = current_time.strftime('%Y-%m-%dT%H:%M:%S')
     
     resp = ET.SubElement(responsibility_statement, "resp", when=formatted_time)
-    resp.text = f"Witness '{siglum}' added using VorlageLLM using LLM '{model_id}'"
+    resp.text = description
 
     return responsibility_statement, xml_id
+
+
+def add_responsibility_statement_llm(doc:ElementTree, siglum:str, model_id:str) -> tuple[Element,str]:
+    """
+    Adds a responsibility statement to the XML document.
+
+    Args:
+        doc (ElementTree): The XML document to which the responsibility statement will be added.
+        siglum (str): The siglum of the witness.
+        model_id (str): The ID of the LLM model used.
+
+    Returns:
+        Element: The responsibility statement element that was added to the document.
+        str: The unique ID of the responsibility statement.
+    """
+    description = f"Witness '{siglum}' added using VorlageLLM using LLM '{model_id}'"
+    xml_id = f"VorlageLLM-{siglum}-{model_id}"
+    return add_responsibility_statement(doc, xml_id, description)
