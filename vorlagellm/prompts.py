@@ -57,6 +57,9 @@ def build_prompt(initiate_response:bool=False, **kwargs):
 
 
 def build_source_prompt(initiate_response:bool=False, **kwargs):    
+    if 'notes' not in kwargs:
+        kwargs['notes'] = ""
+        
     messages = [
         ("system", SYSTEM_MESSAGE),
         ("user", 
