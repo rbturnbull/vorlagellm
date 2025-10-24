@@ -49,7 +49,7 @@ def get_similar_verses_by_phrase(db, phrase:str) -> set[str]:
     return similar_verses
 
 
-def build_apparatus_embeddingdocs(apparatus, ignore_types) -> list[EmbeddingDocument]:
+def build_apparatus_embeddingdocs(apparatus, ignore_types:list[str]|None=None) -> list[EmbeddingDocument]:
     documents = []
     verses = get_verses(apparatus)
     for verse in track(verses):
@@ -103,7 +103,7 @@ def get_db(docs:list[EmbeddingDocument], model:OpenAIEmbeddings, path:Path|str) 
     return db
     
 
-def get_apparatus_db(apparatus, model:OpenAIEmbeddings, path:Path|str, ignore_types:list[str]) -> Chroma:
+def get_apparatus_db(apparatus, model:OpenAIEmbeddings, path:Path|str, ignore_types:list[str]|None=None) -> Chroma:
     if path and Path(path).exists():
         return get_db(None, model, path)
     items = build_apparatus_embeddingdocs(apparatus, ignore_types=ignore_types)
