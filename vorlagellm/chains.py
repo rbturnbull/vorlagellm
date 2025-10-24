@@ -23,14 +23,14 @@ def strip_hyphens(text:str) -> str:
 
 
 
-def build_chain(llm, doc_language: str, apparatus_language: str):
-    prompt = build_prompt(doc_language=doc_language, apparatus_language=apparatus_language)
+def build_chain(llm, doc_language: str, apparatus_language: str, initiate_response:bool=False):
+    prompt = build_prompt(doc_language=doc_language, apparatus_language=apparatus_language, initiate_response=initiate_response)
 
     return prompt | llm | StrOutputParser() | parse_result
 
 
-def build_source_chain(llm, doc_language: str, apparatus_language: str, notes:str):
-    prompt = build_source_prompt(doc_language=doc_language, apparatus_language=apparatus_language, notes=notes)
+def build_source_chain(llm, doc_language: str, apparatus_language: str, notes:str, initiate_response:bool=False):
+    prompt = build_source_prompt(doc_language=doc_language, apparatus_language=apparatus_language, notes=notes, initiate_response=initiate_response)
 
     return prompt | llm | StrOutputParser() | parse_result
 
@@ -40,8 +40,8 @@ def print_prompt(prompt):
     return prompt
 
 
-def build_corresponding_text_chain(llm, doc_language: str, apparatus_language: str, verbose:bool=False):
-    prompt = build_corresponding_text_prompt(doc_language=doc_language, apparatus_language=apparatus_language)
+def build_corresponding_text_chain(llm, doc_language: str, apparatus_language: str, verbose:bool=False, initiate_response:bool=False):
+    prompt = build_corresponding_text_prompt(doc_language=doc_language, apparatus_language=apparatus_language, initiate_response=initiate_response)
     if verbose:
         prompt = prompt | print_prompt
 

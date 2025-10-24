@@ -6,7 +6,7 @@ from rich.console import Console
 from langchain_openai import OpenAIEmbeddings
 import llmloader
 
-from .chains import build_chain, build_corresponding_text_chain, build_source_chain
+from .chains import build_corresponding_text_chain, build_source_chain
 from .prompts import readings_list_to_str
 from .rag import get_apparatus_db, get_teidoc_db, get_db, get_similar_verses, get_similar_verses_by_phrase
 from .agreements import count_witness_agreements, WitnessComparison
@@ -57,6 +57,7 @@ def run(
     notes:Path=None,
     include:list[str]=None,
     ignore:list[str]=None,
+    initiate_response:bool=False,
 ):
     """ Runs the main VorlageLLM pipeline on a document to predict which source readings from an apparatus could have produced its text. """
     llm = llmloader.load(model=model, api_key=api_key)
@@ -99,8 +100,8 @@ def run(
         apparatus_db = get_apparatus_db(apparatus, model=embeddings_model, path=apparatus_db, ignore_types=ignore)
 
     # Create chain to use
-    corresponding_text_chain = build_corresponding_text_chain(llm, doc_language=doc_language, apparatus_language=apparatus_language)
-    source_chain = build_source_chain(llm, doc_language=doc_language, apparatus_language=apparatus_language, notes=notes)
+    corresponding_text_chain = build_corresponding_text_chain(llm, doc_language=doc_language, apparatus_language=apparatus_language, initiate_response=initiate_response)
+    source_chain = build_source_chain(llm, doc_language=doc_language, apparatus_language=apparatus_language, notes=notes, initiate_response=initiate_response)
 
     verses = get_verses(apparatus)
     if include:
